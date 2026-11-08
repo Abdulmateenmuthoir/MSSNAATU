@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% block title %}MSSN AATU · Muslim Students' Society, Abiola Ajimobi Technical University{% endblock %}
+{% block description %}The official home of the Muslim Students' Society of Nigeria at Abiola Ajimobi Technical University, Ibadan. Programmes, news, executives, past questions and member services.{% endblock %}
+
+{% block content %}
+
+<!-- Welcome -->
+<section class="relative overflow-hidden bg-[#f0f5ed]">
+  <div class="absolute -right-24 -top-32 h-[32rem] w-[32rem] rounded-full bg-[#dce9dc]" aria-hidden="true"></div>
+  <div class="container-page relative py-14 sm:py-20 lg:py-24">
+    <div class="grid items-center gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-16">
+      <div class="animate-rise">
+        <p class="eyebrow">MSSN AATU · {{ current_session }}</p>
+        <h1 class="mt-5 max-w-2xl display-xl text-ink">Growing in faith.<br>Excelling in <span class="italic text-brand">knowledge.</span></h1>
+        <p class="mt-6 max-w-xl text-[16px] leading-8 text-muted">A welcoming home for Muslim students at Abiola Ajimobi Technical University — building character, supporting one another and serving our campus.</p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="{% url 'core:about' %}" class="btn-primary">Get to know us <span aria-hidden="true">→</span></a>
+          <a href="{% url 'events:list' %}" class="btn-outline">Explore programmes</a>
+        </div>
+        <div class="mt-10 flex items-center gap-3 text-sm text-muted">
+          <span class="flex -space-x-2" aria-hidden="true"><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-brand text-[10px] font-bold text-white">M</span><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-[#d8b45a] text-[10px] font-bold text-ink">A</span><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-[#d7e4dc] text-[10px] font-bold text-brand">+</span></span>
+          <span>A campus community rooted in faith and service</span>
+        </div>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-[520px]">
+        <div class="relative overflow-hidden rounded-[2rem] bg-brand p-7 text-white shadow-lift sm:p-10">
+          <div class="pattern-stars absolute inset-0 opacity-20" aria-hidden="true"></div>
+          <div class="relative flex min-h-[310px] flex-col justify-between sm:min-h-[360px]">
+            <div class="flex items-start justify-between gap-4">
+              <span class="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/80">Faith · Learning · Service</span>
+              <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#d8b45a] text-brand"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="8.5"/></svg></span>
+            </div>
+            <div class="relative">
+              <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#e5c978]">Together on campus</p>
+              <h2 class="mt-3 max-w-sm font-display text-3xl font-semibold leading-tight sm:text-4xl">A place to belong, learn and make a difference.</h2>
+              <a href="{% url 'core:committees' %}" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-[#e5c978]">Find your community <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+        </div>
+        {% if upcoming_events %}
+        <a href="{{ upcoming_events.0.get_absolute_url }}" class="relative mx-4 -mt-7 block rounded-2xl border border-line bg-surface p-4 shadow-soft sm:mx-8 sm:flex sm:items-center sm:gap-4">
+          <span class="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-brandsoft text-center"><span><span class="block font-display text-xl font-semibold leading-none text-brand">{{ upcoming_events.0.starts_at|date:"d" }}</span><span class="mt-1 block text-[9px] font-bold uppercase tracking-wider text-muted">{{ upcoming_events.0.starts_at|date:"M" }}</span></span></span>
+          <span class="mt-3 block min-w-0 flex-1 sm:mt-0"><span class="block text-[10px] font-bold uppercase tracking-[0.14em] text-gold">Next programme</span><span class="mt-1 block truncate font-display text-lg font-semibold text-ink">{{ upcoming_events.0.title }}</span><span class="mt-1 block text-xs text-muted">{{ upcoming_events.0.starts_at|date:"l, j F · g:i A" }} · {{ upcoming_events.0.venue }}</span></span>
+          <span class="mt-3 block text-xl text-brand sm:mt-0" aria-hidden="true">→</span>
+        </a>
+        {% else %}
+        <div class="relative mx-4 -mt-7 rounded-2xl border border-line bg-surface p-5 shadow-soft sm:mx-8">
+          <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-gold">A community for every student</p><p class="mt-1 font-display text-lg font-semibold text-ink">Faith, friendship and room to grow.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-14 grid grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-4 sm:gap-4">
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.members|intcomma }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Active members</p></div>
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.faculties }}</p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Faculties</p></div>
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.events }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Programmes</p></div>
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.questions }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Past questions</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- About intro -->
+<section class="container-page py-20 sm:py-24">
+  <div class="grid gap-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
+    <div class="reveal">
+      <p class="eyebrow">Who we are</p>
+      <h2 class="mt-4 display-lg text-ink">More than a society.<br><span class="italic text-brand">A family on campus.</span></h2>
+      <p class="mt-6 lede max-w-xl">
+        The Muslim Students' Society of Nigeria, AATU chapter, exists to help every Muslim student grow in faith, excel in learning and serve the community with character.
+      </p>
+      <p class="mt-4 max-w-xl text-sm leading-7 text-muted">
+        From weekly halaqah and Jumu'ah coordination to academic support, welfare and campus-wide programmes, we build a space where faith and scholarship meet.
+      </p>
+      <a href="{% url 'core:about' %}" class="link-underline mt-8">Read our story <span aria-hidden="true">→</span></a>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-3 lg:mt-2">
+      <div class="card p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+        <p class="font-display text-2xl text-gold">01</p>
+        <div class="mt-6 grid h-10 w-10 place-items-center rounded-full bg-brandsoft text-brand">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.4 6.1L21 12l-6.6 2.9L12 21l-2.4-6.1L3 12l6.6-2.9L12 3z" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="mt-4 text-base font-semibold text-ink">Faith first</h3>
+        <p class="mt-2 text-[13px] leading-6 text-muted">A firm grounding in the Qur'an and Sunnah, lived out on campus.</p>
+      </div>
+      <div class="card p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lift sm:mt-8">
+        <p class="font-display text-2xl text-gold">02</p>
+        <div class="mt-6 grid h-10 w-10 place-items-center rounded-full bg-brandsoft text-brand">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V6a2 2 0 012-2h5v15H6a2 2 0 00-2 2zM20 19V6a2 2 0 00-2-2h-5v15h5a2 2 0 012 2z" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="mt-4 text-base font-semibold text-ink">Learning always</h3>
+        <p class="mt-2 text-[13px] leading-6 text-muted">Past questions, study circles and a community that pushes you to excel.</p>
+      </div>
+      <div class="card p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lift sm:mt-16">
+        <p class="font-display text-2xl text-gold">03</p>
+        <div class="mt-6 grid h-10 w-10 place-items-center rounded-full bg-brandsoft text-brand">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20s-7-4.2-7-9.2A4.3 4.3 0 0112 8a4.3 4.3 0 017 2.8c0 5-7 9.2-7 9.2z" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="mt-4 text-base font-semibold text-ink">Service together</h3>
+        <p class="mt-2 text-[13px] leading-6 text-muted">Welfare, outreach and programmes that lift the whole community.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Programmes -->
+<section class="border-y border-line bg-surface2/50 py-20 sm:py-24">
+  <div class="container-page">
+    <div class="flex flex-wrap items-end justify-between gap-5">
+      <div>
+        <p class="eyebrow">On the calendar</p>
+        <h2 class="mt-3 display-md text-ink">What's coming up</h2>
+      </div>
+      <a href="{% url 'events:list' %}" class="link-underline text-sm">All programmes <span aria-hidden="true">→</span></a>
+    </div>
+
+    {% if upcoming_events %}
+      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {% for event in upcoming_events %}
+          <article class="group card overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+            <a href="{{ event.get_absolute_url }}" class="relative block h-44 overflow-hidden bg-[#0e3b2e]">
+              {% if event.flyer %}
+                <img src="{{ event.flyer.url }}" alt="" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#071d16]/70 to-transparent"></div>
+              {% else %}
+                <div class="pattern-stars absolute inset-0 opacity-80"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-[#124936] to-[#0a2c22] opacity-80"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="text-center">
+                    <p class="font-display text-5xl font-semibold text-[#d8b45a]">{{ event.starts_at|date:"d" }}</p>
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">{{ event.starts_at|date:"F Y" }}</p>
+                  </div>
+                </div>
+              {% endif %}
+              <div class="absolute left-4 top-4 flex gap-2">
+                <span class="rounded-full bg-[#0a2c22]/85 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#d8b45a] backdrop-blur">{{ event.eligibility_short }}</span>
+              </div>
+              {% if event.is_full %}<span class="absolute right-4 top-4 rounded-full bg-[#f8f4ea] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#8a2f24]">Full</span>{% endif %}
+            </a>
+            <div class="p-5">
+              <p class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+                <svg class="h-3.5 w-3.5 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>
+                {{ event.starts_at|date:"l, j M · g:i A" }}
+              </p>
+              <h3 class="mt-2 text-lg font-semibold leading-snug text-ink"><a href="{{ event.get_absolute_url }}" class="hover:text-brand">{{ event.title }}</a></h3>
+              <p class="mt-2 line-clamp-2 text-[13px] leading-6 text-muted">{{ event.summary }}</p>
+              <div class="mt-4 flex items-center justify-between border-t border-line pt-3">
+                <span class="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold text-muted">
+                  <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                  <span class="truncate">{{ event.venue }}</span>
+                </span>
+                <span class="text-[11px] font-bold text-brand">{{ event.registrations.count }} registered</span>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state mt-10">
+        <div class="grid h-12 w-12 place-items-center rounded-full bg-brandsoft text-brand">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/></svg>
+        </div>
+        <p class="mt-4 font-display text-lg font-semibold text-ink">The next programme is being prepared</p>
+        <p class="mt-1 text-sm text-muted">Check back soon, or follow the newsroom for announcements.</p>
+        <a href="{% url 'blog:list' %}" class="btn-outline btn-sm mt-5">Visit the newsroom</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Member portal feature -->
+<section class="container-page py-20 sm:py-24">
+  <div class="relative overflow-hidden rounded-4xl bg-[#0a2c22] px-6 py-12 text-white sm:px-10 lg:px-14 lg:py-16">
+    <div class="pattern-rings absolute inset-0 opacity-60" aria-hidden="true"></div>
+    <div class="absolute -right-20 top-0 h-72 w-72 rounded-full bg-[#164b3b] blur-3xl" aria-hidden="true"></div>
+    <div class="relative grid items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
+      <div>
+        <p class="eyebrow !text-[#d8b45a]">For members</p>
+        <h2 class="mt-4 display-md text-white">The whole society,<br><span class="italic text-[#d8b45a]">in your pocket.</span></h2>
+        <p class="mt-5 max-w-md text-sm leading-7 text-[#b9cbc0]">One account connects you to everything the society offers — from your dues record to the questions you need before an exam.</p>
+        <ul class="mt-8 space-y-4">
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#d8b45a]/15 text-[#d8b45a]"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><p class="text-sm font-semibold text-white">Register for programmes in one click</p><p class="mt-0.5 text-xs leading-5 text-[#8ea79a]">Gender-eligible events handled automatically.</p></div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#d8b45a]/15 text-[#d8b45a]"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><p class="text-sm font-semibold text-white">Pay dues and keep every receipt</p><p class="mt-0.5 text-xs leading-5 text-[#8ea79a]">Secure payment, instant confirmation by email.</p></div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#d8b45a]/15 text-[#d8b45a]"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><p class="text-sm font-semibold text-white">Past questions by faculty, department and level</p><p class="mt-0.5 text-xs leading-5 text-[#8ea79a]">Search by course code and download in seconds.</p></div>
+          </li>
+        </ul>
+        <a href="{% if user.is_authenticated %}{% url 'dashboard:home' %}{% else %}{% url 'accounts:login' %}{% endif %}" class="btn-gold mt-9">
+          {% if user.is_authenticated %}Open my dashboard{% else %}Sign in to your account{% endif %}
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-sm lg:ml-auto">
+        <div class="rounded-3xl border border-white/10 bg-[#0f382b] p-5 shadow-2xl">
+          <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="grid h-9 w-9 place-items-center rounded-full bg-[#d8b45a] text-[11px] font-bold text-[#0a2c22]">SA</span>
+              <div><p class="text-xs font-bold text-white">Assalamu alaikum</p><p class="text-[9px] uppercase tracking-[0.14em] text-[#8ea79a]">Member dashboard</p></div>
+            </div>
+            <span class="rounded-full bg-[#d8b45a]/15 px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#d8b45a]">Paid</span>
+          </div>
+          <div class="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <p class="text-[9px] font-bold uppercase tracking-[0.16em] text-[#8ea79a]">Next programme</p>
+            <p class="mt-2 font-display text-lg font-semibold leading-snug text-white">Annual Qur'an Competition</p>
+            <p class="mt-1 text-[10px] text-[#8ea79a]">Sat, 14 November · Main Auditorium</p>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="text-[9px] font-bold uppercase tracking-[0.12em] text-[#d8b45a]">Registered</span>
+              <span class="h-6 w-6 rounded-full border border-[#d8b45a]/30 p-1.5"><svg viewBox="0 0 24 24" fill="none" stroke="#d8b45a" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              <p class="text-[8px] font-bold uppercase tracking-[0.14em] text-[#8ea79a]">Dues</p>
+              <p class="mt-1 font-display text-lg font-semibold text-white">₦2,000</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              <p class="text-[8px] font-bold uppercase tracking-[0.14em] text-[#8ea79a]">Library</p>
+              <p class="mt-1 font-display text-lg font-semibold text-white">120+</p>
+            </div>
+          </div>
+        </div>
+        <div class="absolute -bottom-4 -left-4 rounded-xl border border-[#d8b45a]/30 bg-[#f8f4ea] px-3.5 py-2.5 shadow-xl">
+          <p class="text-[8px] font-bold uppercase tracking-[0.14em] text-[#7b6a3a]">Receipt sent</p>
+          <p class="mt-0.5 text-xs font-bold text-[#13201a]">MSSN-2026-04A1</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsroom -->
+<section class="container-page pb-20 sm:pb-24">
+  <div class="flex flex-wrap items-end justify-between gap-5">
+    <div>
+      <p class="eyebrow">From the office</p>
+      <h2 class="mt-3 display-md text-ink">Newsroom</h2>
+    </div>
+    <a href="{% url 'blog:list' %}" class="link-underline text-sm">All stories <span aria-hidden="true">→</span></a>
+  </div>
+
+  {% if latest_posts %}
+    <div class="mt-10 grid gap-6 md:grid-cols-3">
+      {% for post in latest_posts %}
+        <article class="group">
+          <a href="{{ post.get_absolute_url }}" class="relative block aspect-[16/10] overflow-hidden rounded-2xl border border-line bg-[#0e3b2e]">
+            {% if post.cover %}
+              <img src="{{ post.cover.url }}" alt="" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+            {% else %}
+              <div class="pattern-stars absolute inset-0 opacity-70"></div>
+              <div class="absolute inset-0 flex flex-col justify-between p-5">
+                <span class="self-start rounded-full bg-white/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#f0e6c8] backdrop-blur">{{ post.get_category_display }}</span>
+                <span class="font-display text-4xl italic text-[#d8b45a]/80">“</span>
+              </div>
+            {% endif %}
+          </a>
+          <div class="mt-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{{ post.get_category_display }} · {{ post.published_at|date:"j M Y" }}</p>
+            <h3 class="mt-2 font-display text-xl font-semibold leading-snug text-ink"><a href="{{ post.get_absolute_url }}" class="transition hover:text-brand">{{ post.title }}</a></h3>
+            <p class="mt-2 line-clamp-2 text-[13px] leading-6 text-muted">{{ post.excerpt }}</p>
+            <p class="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-muted">
+              <span class="grid h-5 w-5 place-items-center rounded-full bg-brandsoft text-[8px] font-bold text-brand">{{ post.author.initials }}</span>
+              {{ post.author.full_name }} · {{ post.reading_time }} min read
+            </p>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state mt-10">
+      <p class="font-display text-lg font-semibold text-ink">The first story is being written</p>
+      <p class="mt-1 text-sm text-muted">News and editorials from the office will appear here.</p>
+    </div>
+  {% endif %}
+</section>
+
+<!-- Executives -->
+{% if current_executives %}
+<section class="border-y border-line bg-surface2/50 py-20 sm:py-24">
+  <div class="container-page">
+    <div class="flex flex-wrap items-end justify-between gap-5">
+      <div>
+        <p class="eyebrow">Serving the society</p>
+        <h2 class="mt-3 display-md text-ink">Meet the executives</h2>
+      </div>
+      <a href="{% url 'core:executives' %}" class="link-underline text-sm">Full executive council <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      {% for person in current_executives %}
+        <div class="group text-center">
+          <div class="relative mx-auto aspect-square w-full overflow-hidden rounded-2xl border border-line bg-surface">
+            {% if person.photo %}
+              <img src="{{ person.photo.url }}" alt="{{ person.full_name }}" class="h-full w-full object-cover grayscale transition duration-500 group-hover:grayscale-0">
+            {% else %}
+              <div class="pattern-stars absolute inset-0 opacity-50"></div>
+              <div class="absolute inset-0 grid place-items-center">
+                <span class="grid h-14 w-14 place-items-center rounded-full bg-brand text-lg font-bold text-onbrand">{{ person.initials }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <p class="mt-3 text-[13px] font-bold text-ink">{{ person.full_name }}</p>
+          <p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-gold">{{ person.position }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section class="container-page py-20 sm:py-24">
+  <div class="relative overflow-hidden rounded-4xl border border-line bg-surface p-8 text-center shadow-soft sm:p-14">
+    <div class="pattern-rings absolute inset-0 opacity-40" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-2xl">
+      <p class="eyebrow">Your place is already here</p>
+      <h2 class="mt-4 display-lg text-ink">No forms. No waiting.<br><span class="italic text-brand">Just sign in.</span></h2>
+      <p class="mt-5 text-sm leading-7 text-muted">The PRO office creates every member profile and sends the login details by email. If you are a Muslim student of AATU, your account is waiting for you.</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href="{% url 'accounts:login' %}" class="btn-primary">Sign in to your dashboard</a>
+        <a href="{% url 'core:contact' %}" class="btn-outline">Contact the PRO office</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

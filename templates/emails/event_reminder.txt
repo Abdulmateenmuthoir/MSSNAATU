@@ -1,0 +1,11 @@
+Assalamu alaikum {{ student.first_name }},
+
+A gentle reminder that {{ event.title }} is coming up.
+
+Date: {{ event.starts_at|date:"l, j F Y" }}
+Time: {{ event.starts_at|date:"g:i A" }}
+Venue: {{ event.venue }}
+
+View the programme: {{ site_url }}{{ event.get_absolute_url }}
+
+MSSN AATU

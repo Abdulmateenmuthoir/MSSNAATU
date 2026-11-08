@@ -1,0 +1,96 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Students · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}People &amp; access{% endblock %}
+{% block page_title %}Students{% endblock %}
+
+{% block dashboard_content %}
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm text-muted">{{ total }} member{{ total|pluralize }} on record</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <a href="{% url 'people:promote' %}" class="btn-outline btn-sm">Promote levels</a>
+    <a href="{% url 'people:import' %}" class="btn-outline btn-sm">Import CSV</a>
+    <a href="{% url 'people:create' %}" class="btn-primary btn-sm">Add student</a>
+  </div>
+</div>
+
+<form method="get" class="mt-6 grid gap-3 rounded-2xl border border-line bg-surface p-4 shadow-soft sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_auto]">
+  <div>
+    <label for="q" class="sr-only">Search</label>
+    <input type="search" name="q" id="q" value="{{ query }}" placeholder="Name, matric number or email" class="field-input !py-2.5 text-[13px]">
+  </div>
+  <div>
+    <label for="role" class="sr-only">Role</label>
+    <select name="role" id="role" class="field-input select !py-2.5 text-[13px]">
+      <option value="">All roles</option>
+      {% for value, label in role_choices %}<option value="{{ value }}" {% if role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="level" class="sr-only">Level</label>
+    <select name="level" id="level" class="field-input select !py-2.5 text-[13px]">
+      <option value="">All levels</option>
+      {% for value, label in levels %}<option value="{{ value }}" {% if level == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="flex gap-2">
+    <button type="submit" class="btn-primary btn-sm flex-1 !py-3">Filter</button>
+    {% if query or role or level %}<a href="{% url 'people:list' %}" class="btn-ghost btn-sm !py-3">Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
+  <div class="overflow-x-auto">
+    <table class="data-table min-w-[820px]">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Matric number</th>
+          <th>Level</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th class="text-right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in page.object_list %}
+          <tr>
+            <td>
+              <div class="flex items-center gap-3">
+                {% if student.avatar %}
+                  <img src="{{ student.avatar.url }}" alt="" class="h-9 w-9 rounded-full object-cover">
+                {% else %}
+                  <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandsoft text-[10px] font-bold text-brand">{{ student.initials }}</span>
+                {% endif %}
+                <div class="min-w-0">
+                  <p class="truncate text-[13px] font-bold text-ink">{{ student.full_name }}</p>
+                  <p class="truncate text-[11px] text-muted">{{ student.email }}</p>
+                </div>
+              </div>
+            </td>
+            <td><span class="font-mono text-[12px] font-semibold text-ink">{{ student.matric_no }}</span></td>
+            <td>
+              <p class="text-[12px] font-semibold text-ink">{{ student.get_level_display|default:"—" }}</p>
+              <p class="text-[10px] text-muted">{% if student.department %}{{ student.department.code }}{% elif student.faculty %}{{ student.faculty.code }}{% else %}No department{% endif %}</p>
+            </td>
+            <td>
+              <span class="{% if student.is_administrator %}badge-gold{% elif student.role == 'member' %}badge-green{% else %}badge-neutral{% endif %}">{{ student.role_label }}</span>
+            </td>
+            <td>
+              {% if student.is_active %}<span class="badge-green">Active</span>{% else %}<span class="badge-red">Inactive</span>{% endif %}
+            </td>
+            <td class="text-right">
+              <a href="{% url 'people:detail' student.pk %}" class="text-[11px] font-bold text-brand hover:text-ink">Open →</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="!py-12 text-center"><p class="font-display text-lg font-semibold text-ink">No students found</p><p class="mt-1 text-xs text-muted">Adjust the filters or add a student to get started.</p></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include "partials/pagination.html" with page=page query_string=query_string %}
+{% endblock %}

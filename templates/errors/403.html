@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}No access · {{ site_name }}{% endblock %}
+{% block description %}Your account does not have access to this area.{% endblock %}
+
+{% block content %}
+<section class="container-page flex min-h-[68vh] items-center py-20">
+  <div class="mx-auto max-w-xl text-center">
+    <p class="font-display text-[clamp(4rem,12vw,8rem)] font-semibold leading-none tracking-tight text-gold/25">403</p>
+    <h1 class="mt-2 display-md text-ink">This area is not yours to open.</h1>
+    <p class="mt-4 text-sm leading-7 text-muted">
+      Your account is signed in, but it does not have permission for this page. If you believe this is a mistake,
+      the General Secretary can review your role.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="{% url 'dashboard:home' %}" class="btn-primary">Back to my dashboard</a>
+      <a href="{% url 'core:contact' %}" class="btn-outline">Contact the office</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

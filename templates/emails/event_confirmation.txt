@@ -1,0 +1,14 @@
+Assalamu alaikum {{ student.first_name }},
+
+You are registered for {{ event.title }}.
+
+Date: {{ event.starts_at|date:"l, j F Y" }}
+Time: {{ event.starts_at|date:"g:i A" }}
+Venue: {{ event.venue }}
+
+Please arrive a little early. If you can no longer attend, cancel your
+registration from the event page so someone else can take the place.
+
+View the programme: {{ site_url }}{{ event.get_absolute_url }}
+
+MSSN AATU

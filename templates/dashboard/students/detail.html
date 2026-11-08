@@ -1,0 +1,104 @@
+{% extends "base_dashboard.html" %}
+{% block title %}{{ student.full_name }} · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}People &amp; access{% endblock %}
+{% block page_title %}{{ student.short_name }}{% endblock %}
+
+{% block dashboard_content %}
+<a href="{% url 'people:list' %}" class="text-xs font-bold text-muted hover:text-ink">← All students</a>
+
+<div class="mt-5 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+  <div class="space-y-6">
+    <section class="card overflow-hidden">
+      <div class="relative h-24 bg-[#0a2c22]"><div class="pattern-rings absolute inset-0 opacity-60"></div></div>
+      <div class="px-5 pb-6 sm:px-6">
+        <div class="-mt-9 flex flex-wrap items-end justify-between gap-4">
+          <div class="flex items-end gap-4">
+            {% if student.avatar %}
+              <img src="{{ student.avatar.url }}" alt="" class="h-[72px] w-[72px] rounded-2xl border-4 border-surface object-cover shadow-soft">
+            {% else %}
+              <span class="grid h-[72px] w-[72px] place-items-center rounded-2xl border-4 border-surface bg-brand font-display text-xl font-semibold text-onbrand shadow-soft">{{ student.initials }}</span>
+            {% endif %}
+            <div class="pb-0.5">
+              <h2 class="font-display text-xl font-semibold text-ink">{{ student.full_name }}</h2>
+              <p class="text-[11px] font-semibold text-muted">{{ student.matric_no }} · {{ student.academic_summary }}</p>
+            </div>
+          </div>
+          <div class="flex gap-2 pb-1">
+            <span class="{% if student.is_administrator %}badge-gold{% else %}badge-neutral{% endif %}">{{ student.role_label }}</span>
+            {% if student.is_active %}<span class="badge-green">Active</span>{% else %}<span class="badge-red">Inactive</span>{% endif %}
+          </div>
+        </div>
+
+        <form method="post" class="mt-7 space-y-5" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="form-alert">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
+          <div class="grid gap-5 sm:grid-cols-2">
+            {% include "partials/field.html" with field=form.first_name %}
+            {% include "partials/field.html" with field=form.last_name %}
+            {% include "partials/field.html" with field=form.matric_no %}
+            {% include "partials/field.html" with field=form.email %}
+            {% include "partials/field.html" with field=form.gender %}
+            {% include "partials/field.html" with field=form.level %}
+            {% include "partials/field.html" with field=form.faculty %}
+            {% include "partials/field.html" with field=form.department %}
+          </div>
+          <div class="max-w-xs">{% include "partials/field.html" with field=form.role %}</div>
+          <div class="flex justify-end border-t border-line pt-4"><button type="submit" class="btn-primary btn-sm">Save changes</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="card overflow-hidden">
+      <div class="border-b border-line px-5 py-4"><h3 class="font-display text-lg font-semibold text-ink">Programme registrations</h3></div>
+      <div class="divide-y divide-line">
+        {% for registration in registrations %}
+          <div class="flex items-center justify-between gap-3 px-5 py-3.5">
+            <div class="min-w-0"><p class="truncate text-[13px] font-semibold text-ink">{{ registration.event.title }}</p><p class="text-[10px] text-muted">{{ registration.event.starts_at|date:"j M Y" }}</p></div>
+            <a href="{{ registration.event.get_absolute_url }}" class="text-[11px] font-bold text-brand hover:text-ink">View →</a>
+          </div>
+        {% empty %}
+          <p class="px-5 py-7 text-center text-xs text-muted">No registrations yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <div class="space-y-6">
+    <section class="card p-5">
+      <p class="eyebrow">Account actions</p>
+      <div class="mt-4 space-y-2">
+        <form method="post" action="{% url 'people:resend' student.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-outline btn-sm w-full">Resend login details</button>
+        </form>
+        <form method="post" action="{% url 'people:toggle' student.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="{% if student.is_active %}btn-danger{% else %}btn-outline{% endif %} btn-sm w-full">{% if student.is_active %}Deactivate account{% else %}Reactivate account{% endif %}</button>
+        </form>
+      </div>
+      <p class="mt-3 text-[10px] leading-4 text-muted">Resending generates a new one-time password and immediately invalidates the old one.</p>
+    </section>
+
+    <section class="card p-5">
+      <p class="eyebrow">Dues history</p>
+      <div class="mt-3 space-y-3">
+        {% for payment in payments %}
+          <div class="flex items-center justify-between gap-2">
+            <div><p class="text-[12px] font-semibold text-ink">{{ payment.cycle.session }}</p><p class="text-[10px] text-muted">{{ payment.get_status_display }}{% if payment.paid_at %} · {{ payment.paid_at|date:"j M Y" }}{% endif %}</p></div>
+            <span class="text-[12px] font-bold {% if payment.status == 'success' %}text-success{% else %}text-muted{% endif %}">₦{{ payment.amount|floatformat:0 }}</span>
+          </div>
+        {% empty %}
+          <p class="text-xs text-muted">No payment records.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card p-5">
+      <p class="eyebrow">Contact</p>
+      <p class="mt-2 text-[13px] font-semibold text-ink">{{ student.email }}</p>
+      <p class="mt-1 text-xs text-muted">{{ student.phone|default:"No phone number on file" }}</p>
+      <p class="mt-3 text-[10px] text-muted">Joined {{ student.date_joined|date:"j F Y" }}{% if student.last_seen %} · Last seen {{ student.last_seen|date:"j M Y, g:i A" }}{% endif %}</p>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base_dashboard.html" %}
+{% block title %}My profile · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Account{% endblock %}
+{% block page_title %}My profile{% endblock %}
+
+{% block dashboard_content %}
+<div class="grid gap-6 xl:grid-cols-[1.35fr_1fr]">
+  <div class="space-y-6">
+    <section class="card overflow-hidden">
+      <div class="relative h-28 bg-[#0a2c22]">
+        <div class="pattern-rings absolute inset-0 opacity-60"></div>
+      </div>
+      <div class="px-5 pb-6 sm:px-7">
+        <div class="-mt-10 flex flex-wrap items-end justify-between gap-4">
+          <div class="flex items-end gap-4">
+            {% if user.avatar %}
+              <img src="{{ user.avatar.url }}" alt="" class="h-20 w-20 rounded-2xl border-4 border-surface object-cover shadow-soft">
+            {% else %}
+              <span class="grid h-20 w-20 place-items-center rounded-2xl border-4 border-surface bg-brand font-display text-2xl font-semibold text-onbrand shadow-soft">{{ user.initials }}</span>
+            {% endif %}
+            <div class="pb-1">
+              <h2 class="font-display text-xl font-semibold text-ink">{{ user.full_name }}</h2>
+              <p class="mt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-gold">{{ user.role_label }}</p>
+            </div>
+          </div>
+          <a href="{% url 'accounts:password_change' %}" class="btn-outline btn-sm">Change password</a>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="mt-7 space-y-5" novalidate>
+          {% csrf_token %}
+          <div class="grid gap-5 sm:grid-cols-2">
+            {% include "partials/field.html" with field=form.phone %}
+            <div class="field-group">
+              <label class="field-label">Matric number</label>
+              <div class="flex h-[46px] items-center rounded-xl border border-line bg-surface2 px-4 text-[13px] font-semibold text-muted">{{ user.matric_no }}</div>
+              <p class="field-help">Managed by the PRO office.</p>
+            </div>
+          </div>
+          {% include "partials/field.html" with field=form.bio %}
+          {% include "partials/field.html" with field=form.avatar %}
+          <div class="flex justify-end">
+            <button type="submit" class="btn-primary btn-sm">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="card p-5 sm:p-6">
+      <p class="eyebrow">Membership record</p>
+      <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Email</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ user.email }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Gender</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ user.get_gender_display }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Faculty</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ user.faculty.name|default:"Not set" }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Department</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ user.department.name|default:"Not set" }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Level</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ user.get_level_display|default:"Not set" }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Member since</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ user.date_joined|date:"F Y" }}</dd></div>
+      </dl>
+      <p class="mt-4 rounded-xl bg-surface2/70 px-4 py-3 text-[11px] leading-5 text-muted">Need to correct your name, matric number or academic details? Contact the PRO office — these fields are part of your official membership record.</p>
+    </section>
+  </div>
+
+  <div class="space-y-6">
+    <section class="card p-5">
+      <p class="eyebrow">At a glance</p>
+      <div class="mt-4 grid grid-cols-3 divide-x divide-line">
+        <div class="text-center"><p class="font-display text-2xl font-semibold text-ink">{{ stats.registrations }}</p><p class="mt-1 text-[9px] font-bold uppercase tracking-[0.1em] text-muted">Programmes</p></div>
+        <div class="text-center"><p class="font-display text-2xl font-semibold text-ink">{{ stats.comments }}</p><p class="mt-1 text-[9px] font-bold uppercase tracking-[0.1em] text-muted">Comments</p></div>
+        <div class="text-center"><p class="font-display text-2xl font-semibold text-ink">{{ stats.payments }}</p><p class="mt-1 text-[9px] font-bold uppercase tracking-[0.1em] text-muted">Payments</p></div>
+      </div>
+    </section>
+
+    <section class="card p-5">
+      <div class="flex items-start justify-between gap-3">
+        <div><p class="eyebrow">Security</p><h3 class="mt-1 font-display text-lg font-semibold text-ink">Password</h3></div>
+        <span class="grid h-9 w-9 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 018 0v3" stroke-linecap="round"/></svg></span>
+      </div>
+      {% if user.must_change_password %}
+        <p class="mt-3 rounded-xl border border-gold/30 bg-goldsoft/60 px-4 py-3 text-[11px] leading-5 text-ink"><span class="font-bold">Temporary password in use.</span> Set a personal password to secure your account.</p>
+      {% else %}
+        <p class="mt-3 text-xs leading-5 text-muted">Your password was last changed {% if user.password_set_at %}{{ user.password_set_at|date:"j F Y" }}{% else %}recently{% endif %}.</p>
+      {% endif %}
+      <a href="{% url 'accounts:password_change' %}" class="btn-primary btn-sm mt-4 w-full">Change my password</a>
+      <a href="{% url 'accounts:password_forgot' %}" class="mt-2 block text-center text-[11px] font-semibold text-muted hover:text-ink">Forgot password instead?</a>
+    </section>
+
+    <section class="rounded-2xl border border-line bg-surface2/50 p-5">
+      <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-gold">Need help?</p>
+      <p class="mt-2 text-xs leading-5 text-muted">The PRO office can update your records, resend credentials or help with account access.</p>
+      <a href="{% url 'core:contact' %}" class="link-underline mt-3 text-xs">Contact the office <span aria-hidden="true">→</span></a>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Programmes · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Programmes{% endblock %}
+{% block page_title %}Events manager{% endblock %}
+
+{% block dashboard_content %}
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <p class="text-sm text-muted">{{ events|length }} programme{{ events|length|pluralize }} on record</p>
+  <a href="{% url 'programmes:create' %}" class="btn-primary btn-sm self-start">New programme</a>
+</div>
+
+<div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
+  <div class="overflow-x-auto">
+    <table class="data-table min-w-[900px]">
+      <thead><tr><th>Programme</th><th>Date</th><th>Eligibility</th><th>Registered</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td>
+              <p class="max-w-xs truncate text-[13px] font-bold text-ink">{{ event.title }}</p>
+              <p class="mt-0.5 text-[10px] text-muted">{{ event.venue }}</p>
+            </td>
+            <td><p class="text-[12px] font-semibold text-ink">{{ event.starts_at|date:"j M Y" }}</p><p class="text-[10px] text-muted">{{ event.starts_at|date:"g:i A" }}</p></td>
+            <td><span class="badge-neutral">{{ event.eligibility_short }}</span></td>
+            <td><span class="text-[12px] font-bold text-ink">{{ event.reg_count }}</span>{% if event.capacity %}<span class="text-[10px] text-muted"> / {{ event.capacity }}</span>{% endif %}</td>
+            <td>{% if event.is_past %}<span class="badge-neutral">Past</span>{% elif event.is_published %}<span class="badge-green">Published</span>{% else %}<span class="badge-gold">Draft</span>{% endif %}</td>
+            <td>
+              <div class="flex items-center justify-end gap-2">
+                <a href="{% url 'programmes:registrations' event.pk %}" class="text-[11px] font-bold text-brand hover:text-ink">Registrations</a>
+                <a href="{% url 'programmes:edit' event.pk %}" class="text-[11px] font-bold text-muted hover:text-ink">Edit</a>
+                <form method="post" action="{% url 'programmes:delete' event.pk %}" onsubmit="return confirm('Delete this programme and all its registrations?')">{% csrf_token %}<button type="submit" class="text-[11px] font-bold text-danger hover:text-ink">Delete</button></form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="!py-12 text-center"><p class="font-display text-lg font-semibold text-ink">No programmes yet</p><p class="mt-1 text-xs text-muted">Create the first event for the society.</p><a href="{% url 'programmes:create' %}" class="btn-primary btn-sm mt-4">New programme</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load markdown_extras %}
+{% block title %}{{ event.title }} · {{ site_name }}{% endblock %}
+{% block description %}{{ event.summary }}{% endblock %}
+
+{% block content %}
+<section class="border-b border-line bg-surface2/50">
+  <div class="container-page py-8">
+    <nav class="flex items-center gap-2 text-[11px] font-semibold text-muted" aria-label="Breadcrumb">
+      <a href="{% url 'core:home' %}" class="hover:text-ink">Home</a><span aria-hidden="true">/</span>
+      <a href="{% url 'events:list' %}" class="hover:text-ink">Programmes</a><span aria-hidden="true">/</span>
+      <span class="truncate text-ink">{{ event.title }}</span>
+    </nav>
+  </div>
+</section>
+
+<section class="container-page py-10 sm:py-14">
+  <div class="grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-14">
+    <div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="badge-gold">{{ event.eligibility_short }}</span>
+        {% if event.is_past %}<span class="badge-neutral">Past programme</span>{% elif event.registration_open %}<span class="badge-green">Registration open</span>{% elif event.is_full %}<span class="badge-red">Fully booked</span>{% else %}<span class="badge-neutral">Registration closed</span>{% endif %}
+        <span class="badge-neutral">{{ event.registrations.count }} registered{% if event.capacity %} of {{ event.capacity }}{% endif %}</span>
+      </div>
+
+      <h1 class="mt-5 display-lg text-ink">{{ event.title }}</h1>
+      <p class="mt-4 max-w-2xl lede">{{ event.summary }}</p>
+
+      {% if event.flyer %}
+        <img src="{{ event.flyer.url }}" alt="Flyer for {{ event.title }}" class="mt-8 w-full rounded-2xl border border-line object-cover">
+      {% else %}
+        <div class="relative mt-8 h-56 overflow-hidden rounded-2xl border border-line bg-[#0e3b2e] sm:h-72">
+          <div class="pattern-stars absolute inset-0 opacity-70"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center">
+              <p class="font-display text-6xl font-semibold text-[#d8b45a]">{{ event.starts_at|date:"d" }}</p>
+              <p class="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-white/80">{{ event.starts_at|date:"F Y · l" }}</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="prose-mssn mt-9">{{ event.description|markdownify }}</div>
+    </div>
+
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <div class="card overflow-hidden">
+        <div class="border-b border-line bg-surface2/60 p-5">
+          <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-gold">Programme details</p>
+          <div class="mt-4 space-y-4">
+            <div class="flex items-start gap-3">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/></svg></span>
+              <div><p class="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">Date</p><p class="mt-0.5 text-[13px] font-semibold text-ink">{{ event.starts_at|date:"l, j F Y" }}</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg></span>
+              <div><p class="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">Time</p><p class="mt-0.5 text-[13px] font-semibold text-ink">{{ event.starts_at|date:"g:i A" }}{% if event.ends_at %} – {{ event.ends_at|date:"g:i A" }}{% endif %}</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+              <div><p class="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">Venue</p><p class="mt-0.5 text-[13px] font-semibold text-ink">{{ event.venue }}</p></div>
+            </div>
+            {% if event.registration_deadline %}
+            <div class="flex items-start gap-3">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8" stroke-linecap="round"/></svg></span>
+              <div><p class="text-[10px] font-bold uppercase tracking-[0.1em] text-muted">Registration closes</p><p class="mt-0.5 text-[13px] font-semibold text-ink">{{ event.registration_deadline|date:"j M Y, g:i A" }}</p></div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="p-5">
+          {% if not user.is_authenticated %}
+            <p class="text-[13px] leading-6 text-muted">Sign in to reserve your place. Registration is available to members only.</p>
+            <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="btn-primary mt-4 w-full">Sign in to register</a>
+          {% elif registration %}
+            <div class="rounded-xl bg-success/10 p-4 text-center">
+              <span class="mx-auto grid h-10 w-10 place-items-center rounded-full bg-success/15 text-success"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <p class="mt-2 text-sm font-bold text-ink">You're registered</p>
+              <p class="mt-1 text-[11px] text-muted">A confirmation was sent to your email.</p>
+            </div>
+            <form method="post" action="{% url 'events:cancel' event.slug %}" class="mt-3">
+              {% csrf_token %}
+              <button type="submit" class="btn-ghost btn-sm w-full text-danger hover:bg-danger/5">Cancel registration</button>
+            </form>
+          {% elif not eligible %}
+            <div class="rounded-xl border border-gold/30 bg-goldsoft/60 p-4">
+              <p class="text-[13px] font-bold text-ink">This programme is for {{ event.get_eligibility_display|lower }}.</p>
+              <p class="mt-1 text-xs leading-5 text-muted">Your profile does not meet the eligibility for this event, so registration is unavailable.</p>
+            </div>
+          {% elif event.is_past %}
+            <p class="text-[13px] leading-6 text-muted">This programme has already held. Browse the gallery of past programmes for more.</p>
+            <a href="{% url 'events:list' %}?show=past" class="btn-outline mt-4 w-full">Past programmes</a>
+          {% elif not event.registration_open %}
+            <div class="rounded-xl border border-line bg-surface2 p-4">
+              <p class="text-[13px] font-bold text-ink">{% if event.is_full %}This programme is fully booked.{% else %}Registration has closed.{% endif %}</p>
+              <p class="mt-1 text-xs leading-5 text-muted">Follow the newsroom for updates and future programmes.</p>
+            </div>
+          {% else %}
+            <p class="text-[13px] leading-6 text-muted">Reserve your place in one click. A confirmation email will be sent to you.</p>
+            <form method="post" action="{% url 'events:register' event.slug %}" class="mt-4">
+              {% csrf_token %}
+              <button type="submit" class="btn-primary w-full">Register for this programme</button>
+            </form>
+            {% if event.spots_left is not None %}
+              <p class="mt-3 text-center text-[11px] font-semibold {% if event.spots_left < 10 %}text-danger{% else %}text-muted{% endif %}">{{ event.spots_left }} place{{ event.spots_left|pluralize }} left</p>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+
+      <a href="{% url 'events:list' %}" class="mt-4 flex items-center justify-center gap-1.5 text-xs font-bold text-muted hover:text-ink"><span aria-hidden="true">←</span> All programmes</a>
+    </aside>
+  </div>
+</section>
+{% endblock %}

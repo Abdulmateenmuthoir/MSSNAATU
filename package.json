@@ -1,0 +1,14 @@
+{
+  "name": "mssnaatu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MSSN AATU web application",
+  "scripts": {
+    "css:build": "tailwindcss -i ./static/src/input.css -o ./static/css/app.css --minify",
+    "css:watch": "tailwindcss -i ./static/src/input.css -o ./static/css/app.css --watch",
+    "dev": "npm run css:watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

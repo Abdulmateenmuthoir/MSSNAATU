@@ -1,0 +1,36 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Comments · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Newsroom{% endblock %}
+{% block page_title %}Comment moderation{% endblock %}
+
+{% block dashboard_content %}
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <p class="text-sm text-muted">{{ comments|length }} comment{{ comments|length|pluralize }} across all articles</p>
+  <a href="{% url 'newsroom:list' %}" class="btn-outline btn-sm">Back to articles</a>
+</div>
+
+<div class="mt-6 space-y-3">
+  {% for comment in comments %}
+    <article class="card p-5">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="grid h-8 w-8 place-items-center rounded-full bg-brandsoft text-[9px] font-bold text-brand">{{ comment.author.initials }}</span>
+          <div><p class="text-[13px] font-bold text-ink">{{ comment.author.full_name }}</p><p class="text-[10px] text-muted">{{ comment.created_at|date:"j M Y, g:i A" }}</p></div>
+        </div>
+        <div class="flex items-center gap-2">
+          {% if comment.is_visible %}<span class="badge-green">Visible</span>{% else %}<span class="badge-red">Hidden</span>{% endif %}
+          <form method="post" action="{% url 'newsroom:comment_toggle' comment.pk %}">{% csrf_token %}<button type="submit" class="text-[11px] font-bold text-brand hover:text-ink">{% if comment.is_visible %}Hide{% else %}Show{% endif %}</button></form>
+          <form method="post" action="{% url 'newsroom:comment_delete' comment.pk %}" onsubmit="return confirm('Delete this comment?')">{% csrf_token %}<button type="submit" class="text-[11px] font-bold text-danger hover:text-ink">Delete</button></form>
+        </div>
+      </div>
+      <p class="mt-3 whitespace-pre-line text-[13px] leading-6 text-muted">{{ comment.body }}</p>
+      <a href="{{ comment.post.get_absolute_url }}#comments" class="mt-3 inline-block text-[11px] font-bold text-brand hover:text-ink">On: {{ comment.post.title|truncatechars:70 }} →</a>
+    </article>
+  {% empty %}
+    <div class="empty-state">
+      <p class="font-display text-lg font-semibold text-ink">No comments yet</p>
+      <p class="mt-1 text-sm text-muted">Member comments will appear here for moderation.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

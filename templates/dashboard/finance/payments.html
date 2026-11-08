@@ -1,0 +1,45 @@
+{% extends "base_dashboard.html" %}
+{% load humanize %}
+{% block title %}Payments · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Finance{% endblock %}
+{% block page_title %}Payment records{% endblock %}
+
+{% block dashboard_content %}
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div class="flex flex-wrap gap-2">
+    <a href="{% url 'money:payments' %}" class="badge {% if not status %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">All</a>
+    <a href="?status=success" class="badge {% if status == 'success' %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">Paid</a>
+    <a href="?status=pending" class="badge {% if status == 'pending' %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">Pending</a>
+    <a href="?status=failed" class="badge {% if status == 'failed' %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">Failed</a>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'money:overview' %}" class="btn-outline btn-sm">Finance overview</a>
+    <a href="{% url 'money:export' %}" class="btn-primary btn-sm">Export CSV</a>
+  </div>
+</div>
+
+{% if cycle %}<p class="mt-4 text-xs text-muted">Active cycle: <span class="font-bold text-ink">{{ cycle.session }}</span></p>{% endif %}
+
+<div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
+  <div class="overflow-x-auto">
+    <table class="data-table min-w-[900px]">
+      <thead><tr><th>Student</th><th>Session</th><th>Amount</th><th>Status</th><th>Gateway</th><th>Reference</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for payment in payments %}
+          <tr>
+            <td><p class="text-[12px] font-bold text-ink">{{ payment.student.full_name }}</p><p class="font-mono text-[9px] text-muted">{{ payment.student.matric_no }}</p></td>
+            <td class="text-[12px]">{{ payment.cycle.session }}</td>
+            <td class="text-[12px] font-bold text-ink">₦{{ payment.amount|floatformat:0|intcomma }}</td>
+            <td>{% if payment.status == 'success' %}<span class="badge-green">Paid</span>{% elif payment.status == 'pending' %}<span class="badge-gold">Pending</span>{% else %}<span class="badge-red">Failed</span>{% endif %}</td>
+            <td class="text-[11px] uppercase tracking-[0.08em] text-muted">{{ payment.gateway }}</td>
+            <td class="font-mono text-[10px] text-muted">{{ payment.reference }}</td>
+            <td class="text-[11px] text-muted">{{ payment.created_at|date:"j M Y, g:i A" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="!py-12 text-center"><p class="font-display text-lg font-semibold text-ink">No payments found</p><p class="mt-1 text-xs text-muted">Payment attempts will appear here.</p></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

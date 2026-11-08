@@ -1,0 +1,48 @@
+{% extends "base_dashboard.html" %}
+{% block title %}{% if student %}Edit student{% else %}Add student{% endif %} · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}People &amp; access{% endblock %}
+{% block page_title %}{% if student %}Edit {{ student.short_name }}{% else %}Add a student{% endif %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="mx-auto max-w-3xl">
+  <div class="mb-5 flex items-center justify-between gap-3">
+    <a href="{% if student %}{% url 'people:detail' student.pk %}{% else %}{% url 'people:list' %}{% endif %}" class="text-xs font-bold text-muted hover:text-ink">← Back</a>
+    {% if student %}<a href="{% url 'accounts:password_forgot' %}" class="text-xs font-bold text-brand hover:text-ink">Password reset</a>{% endif %}
+  </div>
+
+  <form method="post" class="card p-6 sm:p-8" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="form-alert mb-5">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
+
+    <div class="flex items-start gap-4">
+      <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0115 0" stroke-linecap="round"/></svg></span>
+      <div><h2 class="font-display text-xl font-semibold text-ink">Member details</h2><p class="mt-1 text-sm text-muted">These details appear on the student's profile and are used for eligibility and reports.</p></div>
+    </div>
+
+    <div class="mt-7 grid gap-5 sm:grid-cols-2">
+      {% include "partials/field.html" with field=form.first_name %}
+      {% include "partials/field.html" with field=form.last_name %}
+      {% include "partials/field.html" with field=form.matric_no %}
+      {% include "partials/field.html" with field=form.email %}
+      {% include "partials/field.html" with field=form.gender %}
+      {% include "partials/field.html" with field=form.level %}
+      {% include "partials/field.html" with field=form.faculty %}
+      {% include "partials/field.html" with field=form.department %}
+    </div>
+
+    <div class="mt-5">{% include "partials/field.html" with field=form.role %}</div>
+
+    {% if not student %}
+      <div class="mt-5 flex items-start gap-3 rounded-xl border border-gold/25 bg-goldsoft/50 p-4">
+        <span class="text-gold"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4M12 16h.01" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg></span>
+        <p class="text-[11px] leading-5 text-ink">A one-time password will be generated and emailed to the student. You will see it once on the next screen so you can share it manually if needed.</p>
+      </div>
+    {% endif %}
+
+    <div class="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+      <a href="{% url 'people:list' %}" class="btn-ghost btn-sm">Cancel</a>
+      <button type="submit" class="btn-primary btn-sm">{% if student %}Save changes{% else %}Create student{% endif %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

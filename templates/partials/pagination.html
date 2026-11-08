@@ -1,0 +1,17 @@
+{% if page.has_other_pages %}
+<nav class="mt-8 flex items-center justify-between gap-4" aria-label="Pagination">
+  <p class="text-xs font-semibold text-muted">Page {{ page.number }} of {{ page.paginator.num_pages }}</p>
+  <div class="flex items-center gap-2">
+    {% if page.has_previous %}
+      <a href="?page={{ page.previous_page_number }}{% if query_string %}&amp;{{ query_string }}{% endif %}" class="btn-outline btn-sm">Previous</a>
+    {% else %}
+      <span class="btn-outline btn-sm cursor-not-allowed opacity-40">Previous</span>
+    {% endif %}
+    {% if page.has_next %}
+      <a href="?page={{ page.next_page_number }}{% if query_string %}&amp;{{ query_string }}{% endif %}" class="btn-outline btn-sm">Next</a>
+    {% else %}
+      <span class="btn-outline btn-sm cursor-not-allowed opacity-40">Next</span>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

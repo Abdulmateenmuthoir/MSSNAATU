@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block main_class %}min-h-screen bg-paper{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+  <div class="sidebar-scrim" data-sidebar-scrim></div>
+
+  <aside class="dashboard-sidebar" data-sidebar aria-label="Dashboard navigation">
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
+      {% include "partials/logo.html" %}
+      <button type="button" data-sidebar-close class="btn-icon h-9 w-9 lg:hidden" aria-label="Close menu">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-3 pb-6">
+      <div class="mt-5 rounded-xl border border-line bg-surface2/60 p-3">
+        <div class="flex items-center gap-3">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="" class="h-10 w-10 rounded-full object-cover">
+          {% else %}
+            <span class="grid h-10 w-10 place-items-center rounded-full bg-brand text-xs font-bold text-onbrand">{{ user.initials }}</span>
+          {% endif %}
+          <div class="min-w-0">
+            <p class="truncate text-[13px] font-bold text-ink">{{ user.short_name }}</p>
+            <p class="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">{{ user.role_label }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="sidebar-label">Workspace</p>
+      <nav class="space-y-1">
+        <a href="{% url 'dashboard:home' %}" class="sidebar-link {% if request.resolver_match.namespace == 'dashboard' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          Overview
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0115 0" stroke-linecap="round"/></svg>
+          My profile
+        </a>
+        <a href="{% url 'finance:dues' %}" class="sidebar-link {% if request.resolver_match.namespace == 'finance' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19M6 14.5h4" stroke-linecap="round"/></svg>
+          My dues
+        </a>
+        <a href="{% url 'events:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'events' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/><path d="M8 13h3M8 16.5h6" stroke-linecap="round"/></svg>
+          Programmes
+        </a>
+        <a href="{% url 'library:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'library' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5.5A2.5 2.5 0 016.5 3H19v16H6.5A2.5 2.5 0 004 21.5" stroke-linecap="round"/><path d="M8 7h7M8 11h5" stroke-linecap="round"/></svg>
+          Past questions
+        </a>
+      </nav>
+
+      {% if user.can_manage_people or user.can_manage_content or user.can_manage_events or user.can_manage_library or user.can_manage_finance %}
+      <p class="sidebar-label">Manage</p>
+      <nav class="space-y-1">
+        {% if user.can_manage_people %}
+        <a href="{% url 'people:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'people' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 20a6.2 6.2 0 0112.4 0M16 5.5a3.2 3.2 0 010 5M18 20a6 6 0 00-2-4.5" stroke-linecap="round"/></svg>
+          Students
+        </a>
+        {% endif %}
+        {% if user.can_manage_content %}
+        <a href="{% url 'newsroom:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'newsroom' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5.5A2.5 2.5 0 016.5 3H18a2 2 0 012 2v14a2 2 0 01-2 2H6.5A2.5 2.5 0 014 18.5z"/><path d="M8 7h8M8 11h8M8 15h5" stroke-linecap="round"/></svg>
+          Newsroom
+        </a>
+        {% endif %}
+        {% if user.can_manage_events %}
+        <a href="{% url 'programmes:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'programmes' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/></svg>
+          Events manager
+        </a>
+        {% endif %}
+        {% if user.can_manage_library %}
+        <a href="{% url 'pastquestions:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'pastquestions' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 6.5C10.5 5 8.5 4.5 5 4.5v13c3.5 0 5.5.5 7 2 1.5-1.5 3.5-2 7-2v-13c-3.5 0-5.5.5-7 2z"/><path d="M12 6.5v13" stroke-linecap="round"/></svg>
+          Library manager
+        </a>
+        {% endif %}
+        {% if user.can_manage_finance %}
+        <a href="{% url 'money:overview' %}" class="sidebar-link {% if request.resolver_match.namespace == 'money' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20h18M5 20V10M10 20V4M15 20v-7M20 20V7" stroke-linecap="round"/></svg>
+          Finance
+        </a>
+        {% endif %}
+        {% if user.is_super_admin %}
+        <a href="/django-admin/" class="sidebar-link">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 00-2-1.2L14.2 3h-4l-.4 2.7a7 7 0 00-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 005.5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 002 1.2l.4 2.7h4l.4-2.7a7 7 0 002-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg>
+          System admin
+        </a>
+        {% endif %}
+      </nav>
+      {% endif %}
+    </div>
+
+    <div class="shrink-0 border-t border-line p-4">
+      <a href="{% url 'core:home' %}" class="flex items-center justify-between rounded-xl border border-line bg-surface2/50 px-3 py-2.5 text-[12px] font-semibold text-muted transition hover:text-ink">
+        View public site
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 17L17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <div class="flex min-h-screen w-full flex-col lg:pl-[272px]">
+    <header class="topbar">
+      <div class="flex min-w-0 items-center gap-3">
+        <button type="button" data-sidebar-open class="btn-icon h-10 w-10 lg:hidden" aria-label="Open menu">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+        </button>
+        <div class="min-w-0">
+          <p class="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-muted sm:block">{% block page_eyebrow %}MSSN AATU{% endblock %}</p>
+          <h1 class="truncate font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">{% block page_title %}Dashboard{% endblock %}</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        {% include "partials/theme_toggle.html" %}
+        <details class="relative">
+          <summary class="flex cursor-pointer list-none items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-3 transition hover:border-brand/40 [&::-webkit-details-marker]:hidden">
+            {% if user.avatar %}
+              <img src="{{ user.avatar.url }}" alt="" class="h-8 w-8 rounded-full object-cover">
+            {% else %}
+              <span class="grid h-8 w-8 place-items-center rounded-full bg-brand text-[11px] font-bold text-onbrand">{{ user.initials }}</span>
+            {% endif %}
+            <span class="hidden text-xs font-bold text-ink sm:block">{{ user.short_name }}</span>
+            <svg class="h-3.5 w-3.5 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" stroke-linecap="round"/></svg>
+          </summary>
+          <div class="absolute right-0 mt-2 w-64 overflow-hidden rounded-2xl border border-line bg-surface p-2 shadow-lift">
+            <div class="border-b border-line px-3 pb-3 pt-2">
+              <p class="text-sm font-bold text-ink">{{ user.full_name }}</p>
+              <p class="mt-0.5 truncate text-xs text-muted">{{ user.email }}</p>
+              <p class="mt-1.5 badge-gold">{{ user.role_label }}</p>
+            </div>
+            <a href="{% url 'accounts:profile' %}" class="mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-ink hover:bg-surface2">My profile</a>
+            <a href="{% url 'accounts:password_change' %}" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-ink hover:bg-surface2">Change password</a>
+            <a href="{% url 'core:home' %}" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-ink hover:bg-surface2">Public site</a>
+            <form method="post" action="{% url 'accounts:logout' %}" class="mt-1 border-t border-line pt-1">
+              {% csrf_token %}
+              <button type="submit" class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-semibold text-danger hover:bg-danger/5">Sign out</button>
+            </form>
+          </div>
+        </details>
+      </div>
+    </header>
+
+    {% if user.must_change_password %}
+    <div class="border-b border-gold/30 bg-goldsoft/60 px-5 py-3 sm:px-8 lg:px-10">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="flex items-center gap-2 text-xs font-semibold text-ink">
+          <svg class="h-4 w-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v3M12 16v.5" stroke-linecap="round"/><path d="M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+          You are still using a temporary password.
+        </p>
+        <a href="{% url 'accounts:password_change' %}" class="text-xs font-bold text-brand underline decoration-gold/60 underline-offset-4">Change it now</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <main class="flex-1 px-5 py-7 sm:px-8 lg:px-10 lg:py-9">
+      {% block dashboard_content %}{% endblock %}
+    </main>
+
+    <footer class="border-t border-line px-5 py-5 text-[11px] text-muted sm:px-8 lg:px-10">
+      <div class="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+        <p>© {% now "Y" %} MSSN AATU · {{ current_session }}</p>
+        <p>Signed in as {{ user.matric_no }}</p>
+      </div>
+    </footer>
+  </div>
+</div>
+{% endblock %}

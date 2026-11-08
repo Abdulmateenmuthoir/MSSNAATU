@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Newsroom · {{ site_name }}{% endblock %}
+{% block description %}News, editorials and stories from the Muslim Students' Society at AATU.{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden border-b border-line bg-surface2/50">
+  <div class="pattern-rings absolute inset-0 opacity-40" aria-hidden="true"></div>
+  <div class="container-page relative py-14 sm:py-18">
+    <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+        <p class="eyebrow">From the office</p>
+        <h1 class="mt-3 display-lg text-ink">The newsroom.</h1>
+        <p class="mt-4 lede">News, editorials and stories from the society — written by the Editorial Board and contributors across campus.</p>
+      </div>
+      <form method="get" class="flex w-full max-w-md gap-2 lg:w-auto">
+        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+        <label class="sr-only" for="q">Search stories</label>
+        <input type="search" name="q" id="q" value="{{ query }}" placeholder="Search the newsroom" class="field-input !py-2.5 text-[13px]">
+        <button type="submit" class="btn-primary btn-sm shrink-0">Search</button>
+      </form>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-2">
+      <a href="?{% if query %}q={{ query|urlencode }}{% endif %}" class="badge {% if not selected_category %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">All stories</a>
+      {% for key, label in categories %}
+        <a href="?category={{ key }}{% if query %}&q={{ query|urlencode }}{% endif %}" class="badge {% if selected_category == key %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="container-page py-14 sm:py-20">
+  {% if featured and page.number == 1 %}
+    <article class="group card overflow-hidden lg:grid lg:grid-cols-[1.05fr_1fr]">
+      <a href="{{ featured.get_absolute_url }}" class="relative block min-h-[280px] overflow-hidden bg-[#0e3b2e] lg:min-h-[400px]">
+        {% if featured.cover %}
+          <img src="{{ featured.cover.url }}" alt="" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]">
+        {% else %}
+          <div class="pattern-stars absolute inset-0 opacity-80"></div>
+          <div class="absolute inset-0 bg-gradient-to-br from-[#14503c]/90 to-[#08251c]"></div>
+          <div class="absolute inset-0 flex flex-col justify-between p-7">
+            <span class="self-start rounded-full border border-[#d8b45a]/30 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-[#d8b45a]">{{ featured.get_category_display }}</span>
+            <p class="font-display text-6xl italic leading-none text-[#d8b45a]/80">“</p>
+          </div>
+        {% endif %}
+      </a>
+      <div class="flex flex-col justify-center p-7 sm:p-10">
+        <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-gold">Featured · {{ featured.published_at|date:"j F Y" }}</p>
+        <h2 class="mt-3 font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl"><a href="{{ featured.get_absolute_url }}" class="transition hover:text-brand">{{ featured.title }}</a></h2>
+        <p class="mt-4 text-sm leading-7 text-muted">{{ featured.excerpt }}</p>
+        <div class="mt-6 flex items-center gap-3 border-t border-line pt-5">
+          <span class="grid h-9 w-9 place-items-center rounded-full bg-brandsoft text-[10px] font-bold text-brand">{{ featured.author.initials }}</span>
+          <div><p class="text-[12px] font-bold text-ink">{{ featured.author.full_name }}</p><p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{{ featured.reading_time }} min read</p></div>
+          <a href="{{ featured.get_absolute_url }}" class="ml-auto grid h-9 w-9 place-items-center rounded-full border border-line text-brand transition hover:bg-brand hover:text-onbrand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+    </article>
+  {% endif %}
+
+  <div class="{% if featured and page.number == 1 %}mt-8{% endif %} grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for post in page.object_list %}
+      <article class="group card overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+        <a href="{{ post.get_absolute_url }}" class="relative block aspect-[16/10] overflow-hidden bg-[#0e3b2e]">
+          {% if post.cover %}
+            <img src="{{ post.cover.url }}" alt="" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+          {% else %}
+            <div class="pattern-stars absolute inset-0 opacity-70"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-[#14503c] to-[#0a2c22] opacity-80"></div>
+            <div class="absolute inset-0 flex items-end p-5"><span class="font-display text-4xl italic text-[#d8b45a]/70">“</span></div>
+          {% endif %}
+          <span class="absolute left-4 top-4 rounded-full bg-[#0a2c22]/85 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#d8b45a] backdrop-blur">{{ post.get_category_display }}</span>
+        </a>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-[0.13em] text-muted">{{ post.published_at|date:"j M Y" }} · {{ post.reading_time }} min read</p>
+          <h2 class="mt-2 font-display text-xl font-semibold leading-snug text-ink"><a href="{{ post.get_absolute_url }}" class="transition hover:text-brand">{{ post.title }}</a></h2>
+          <p class="mt-2 line-clamp-2 text-[13px] leading-6 text-muted">{{ post.excerpt }}</p>
+          <div class="mt-4 flex items-center gap-2 border-t border-line pt-3">
+            <span class="grid h-6 w-6 place-items-center rounded-full bg-brandsoft text-[8px] font-bold text-brand">{{ post.author.initials }}</span>
+            <span class="text-[11px] font-semibold text-muted">{{ post.author.full_name }}</span>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <div class="empty-state md:col-span-2 lg:col-span-3">
+        <div class="grid h-12 w-12 place-items-center rounded-full bg-brandsoft text-brand">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 016.5 3H18a2 2 0 012 2v14a2 2 0 01-2 2H6.5A2.5 2.5 0 014 18.5z"/><path d="M8 7h8M8 11h8M8 15h5" stroke-linecap="round"/></svg>
+        </div>
+        <p class="mt-4 font-display text-lg font-semibold text-ink">No stories found</p>
+        <p class="mt-1 text-sm text-muted">{% if query %}Try a different search, or browse all stories.{% else %}The first story is being written. Check back soon.{% endif %}</p>
+        {% if query or selected_category %}<a href="{% url 'blog:list' %}" class="btn-outline btn-sm mt-5">Clear filters</a>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  {% include "partials/pagination.html" with page=page query_string=query_string %}
+</section>
+{% endblock %}

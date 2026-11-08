@@ -1,0 +1,232 @@
+{% extends "base_dashboard.html" %}
+{% load humanize %}
+{% block title %}Overview · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}{{ current_session }} · Member workspace{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-gold">{% now "l, j F Y" %}</p>
+    <h2 class="mt-1 font-display text-2xl font-semibold tracking-tight text-ink sm:text-[28px]">Assalamu alaikum, {{ user.short_name }}.</h2>
+    <p class="mt-1 text-sm text-muted">Here is what is happening in your society today.</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    {% if user.can_manage_people %}<a href="{% url 'people:create' %}" class="btn-outline btn-sm">Add student</a>{% endif %}
+    {% if user.can_manage_content %}<a href="{% url 'newsroom:create' %}" class="btn-outline btn-sm">New article</a>{% endif %}
+    {% if user.can_manage_events %}<a href="{% url 'programmes:create' %}" class="btn-outline btn-sm">New programme</a>{% endif %}
+    {% if not user.can_manage_people and not user.can_manage_content and not user.can_manage_events %}
+      <a href="{% url 'library:list' %}" class="btn-outline btn-sm">Browse library</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="card p-5">
+    <div class="flex items-center justify-between">
+      <p class="stat-label">Dues status</p>
+      <span class="grid h-8 w-8 place-items-center rounded-full {% if my_payment %}bg-success/10 text-success{% else %}bg-goldsoft text-gold{% endif %}">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">{% if my_payment %}<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>{% else %}<path d="M12 8v4M12 16h.01" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/>{% endif %}</svg>
+      </span>
+    </div>
+    <p class="mt-3 font-display text-2xl font-semibold text-ink">{% if my_payment %}Paid{% elif active_cycle %}Unpaid{% else %}Not set{% endif %}</p>
+    <p class="mt-1 text-[11px] text-muted">{% if active_cycle %}{{ active_cycle.session }} · ₦{{ active_cycle.amount|floatformat:0|intcomma }}{% else %}No active cycle{% endif %}</p>
+  </div>
+
+  <div class="card p-5">
+    <div class="flex items-center justify-between">
+      <p class="stat-label">My programmes</p>
+      <span class="grid h-8 w-8 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/></svg></span>
+    </div>
+    <p class="mt-3 font-display text-2xl font-semibold text-ink">{{ my_registration_count }}</p>
+    <p class="mt-1 text-[11px] text-muted">Registration{{ my_registration_count|pluralize }} on record</p>
+  </div>
+
+  <div class="card p-5">
+    <div class="flex items-center justify-between">
+      <p class="stat-label">Library</p>
+      <span class="grid h-8 w-8 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5.5A2.5 2.5 0 016.5 3H19v16H6.5A2.5 2.5 0 004 21.5" stroke-linecap="round"/><path d="M8 7h7M8 11h5" stroke-linecap="round"/></svg></span>
+    </div>
+    <p class="mt-3 font-display text-2xl font-semibold text-ink">{{ question_count }}</p>
+    <p class="mt-1 text-[11px] text-muted">Past question{{ question_count|pluralize }} available</p>
+  </div>
+
+  {% if user.is_administrator or user.role != 'member' %}
+  <div class="card p-5">
+    <div class="flex items-center justify-between">
+      <p class="stat-label">Community</p>
+      <span class="grid h-8 w-8 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 20a6.2 6.2 0 0112.4 0M16 5.5a3.2 3.2 0 010 5M18 20a6 6 0 00-2-4.5" stroke-linecap="round"/></svg></span>
+    </div>
+    <p class="mt-3 font-display text-2xl font-semibold text-ink">{{ member_count|intcomma }}</p>
+    <p class="mt-1 text-[11px] text-muted">Active member{{ member_count|pluralize }}</p>
+  </div>
+  {% else %}
+  <div class="card p-5">
+    <div class="flex items-center justify-between">
+      <p class="stat-label">Next programme</p>
+      <span class="grid h-8 w-8 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg></span>
+    </div>
+    <p class="mt-3 text-lg font-bold leading-tight text-ink">{{ next_event.starts_at|date:"j M"|default:"—" }}</p>
+    <p class="mt-1 text-[11px] text-muted">{% if next_event %}{{ next_event.title|truncatechars:34 }}{% else %}Nothing scheduled yet{% endif %}</p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-[1.55fr_1fr]">
+  <div class="space-y-6">
+    <!-- Next programme -->
+    <section class="card overflow-hidden">
+      <div class="flex items-center justify-between border-b border-line px-5 py-4">
+        <div><p class="eyebrow">On the calendar</p><h3 class="mt-1 font-display text-lg font-semibold text-ink">Next programme</h3></div>
+        <a href="{% url 'events:list' %}" class="text-[11px] font-bold text-brand hover:text-ink">All programmes →</a>
+      </div>
+      {% if next_event %}
+        <div class="grid gap-5 p-5 sm:grid-cols-[92px_1fr_auto] sm:items-center">
+          <div class="flex h-24 w-24 flex-col items-center justify-center rounded-2xl bg-[#0a2c22] text-center">
+            <p class="font-display text-3xl font-semibold leading-none text-[#d8b45a]">{{ next_event.starts_at|date:"d" }}</p>
+            <p class="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-white/80">{{ next_event.starts_at|date:"M Y" }}</p>
+          </div>
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="badge-gold">{{ next_event.eligibility_short }}</span>
+              {% if my_registration %}<span class="badge-green">Registered</span>{% endif %}
+            </div>
+            <h4 class="mt-2 font-display text-xl font-semibold leading-snug text-ink"><a href="{{ next_event.get_absolute_url }}" class="hover:text-brand">{{ next_event.title }}</a></h4>
+            <p class="mt-1 text-[12px] text-muted">{{ next_event.starts_at|date:"l, j F · g:i A" }} · {{ next_event.venue }}</p>
+          </div>
+          <a href="{{ next_event.get_absolute_url }}" class="btn-primary btn-sm">{% if my_registration %}View details{% else %}Register{% endif %}</a>
+        </div>
+      {% else %}
+        <div class="px-5 py-9 text-center">
+          <p class="text-sm font-semibold text-ink">No upcoming programme yet</p>
+          <p class="mt-1 text-xs text-muted">The calendar will update as soon as the office publishes something.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- Registrations / recent activity -->
+    <section class="card overflow-hidden">
+      <div class="flex items-center justify-between border-b border-line px-5 py-4">
+        <div><p class="eyebrow">{% if user.can_manage_events %}Live records{% else %}My activity{% endif %}</p><h3 class="mt-1 font-display text-lg font-semibold text-ink">{% if user.can_manage_events %}Recent registrations{% else %}My registrations{% endif %}</h3></div>
+        <a href="{% if user.can_manage_events %}{% url 'programmes:list' %}{% else %}{% url 'events:list' %}{% endif %}" class="text-[11px] font-bold text-brand hover:text-ink">{% if user.can_manage_events %}Manage{% else %}Browse{% endif %} →</a>
+      </div>
+      <div class="divide-y divide-line">
+        {% if user.can_manage_events %}
+          {% for registration in recent_registrations %}
+            <div class="flex items-center gap-3 px-5 py-3.5">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandsoft text-[10px] font-bold text-brand">{{ registration.student.initials }}</span>
+              <div class="min-w-0 flex-1"><p class="truncate text-[13px] font-semibold text-ink">{{ registration.student.full_name }}</p><p class="truncate text-[11px] text-muted">{{ registration.event.title }}</p></div>
+              <span class="shrink-0 text-[10px] font-semibold text-muted">{{ registration.created_at|date:"j M" }}</span>
+            </div>
+          {% empty %}
+            <p class="px-5 py-8 text-center text-xs text-muted">No registrations yet.</p>
+          {% endfor %}
+        {% else %}
+          {% for registration in my_registrations %}
+            <div class="flex items-center gap-3 px-5 py-3.5">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/></svg></span>
+              <div class="min-w-0 flex-1"><p class="truncate text-[13px] font-semibold text-ink">{{ registration.event.title }}</p><p class="truncate text-[11px] text-muted">{{ registration.event.starts_at|date:"j M Y · g:i A" }}</p></div>
+              <span class="badge-green shrink-0">Registered</span>
+            </div>
+          {% empty %}
+            <div class="px-5 py-8 text-center">
+              <p class="text-xs text-muted">You have not registered for a programme yet.</p>
+              <a href="{% url 'events:list' %}" class="btn-outline btn-sm mt-3">Find a programme</a>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Newsroom -->
+    <section class="card overflow-hidden">
+      <div class="flex items-center justify-between border-b border-line px-5 py-4">
+        <div><p class="eyebrow">From the office</p><h3 class="mt-1 font-display text-lg font-semibold text-ink">Latest stories</h3></div>
+        <a href="{% url 'blog:list' %}" class="text-[11px] font-bold text-brand hover:text-ink">Newsroom →</a>
+      </div>
+      <div class="divide-y divide-line">
+        {% for post in latest_posts %}
+          <a href="{{ post.get_absolute_url }}" class="flex items-center gap-3 px-5 py-3.5 transition hover:bg-surface2/50">
+            <div class="min-w-0 flex-1">
+              <p class="text-[9px] font-bold uppercase tracking-[0.12em] text-gold">{{ post.get_category_display }}</p>
+              <p class="mt-0.5 truncate text-[13px] font-semibold text-ink">{{ post.title }}</p>
+            </div>
+            <span class="shrink-0 text-[10px] text-muted">{{ post.published_at|date:"j M" }}</span>
+          </a>
+        {% empty %}
+          <p class="px-5 py-8 text-center text-xs text-muted">No stories yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <div class="space-y-6">
+    <!-- Dues -->
+    <section class="relative overflow-hidden rounded-2xl border border-line bg-[#0a2c22] p-5 text-white shadow-soft">
+      <div class="pattern-rings absolute inset-0 opacity-50" aria-hidden="true"></div>
+      <div class="relative">
+        <div class="flex items-start justify-between">
+          <div><p class="text-[9px] font-bold uppercase tracking-[0.18em] text-[#d8b45a]">Annual dues</p><h3 class="mt-1 font-display text-xl font-semibold text-white">{{ active_cycle.session|default:"No active cycle" }}</h3></div>
+          {% if my_payment %}
+            <span class="grid h-9 w-9 place-items-center rounded-full bg-[#d8b45a]/15 text-[#d8b45a]"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          {% endif %}
+        </div>
+        {% if active_cycle %}
+          <p class="mt-4 font-display text-3xl font-semibold text-white">₦{{ active_cycle.amount|floatformat:0|intcomma }}</p>
+          {% if my_payment %}
+            <p class="mt-1 text-[11px] text-[#a9bdb3]">Paid {{ my_payment.paid_at|date:"j F Y" }} · {{ my_payment.receipt_number }}</p>
+            <a href="{% url 'finance:receipt' my_payment.reference %}" class="mt-4 inline-flex items-center gap-1.5 text-[11px] font-bold text-[#d8b45a] hover:text-white">View receipt <span aria-hidden="true">→</span></a>
+          {% else %}
+            <p class="mt-1 text-[11px] text-[#a9bdb3]">{% if active_cycle.due_date %}Due {{ active_cycle.due_date|date:"j F Y" }}{% else %}Pay securely online{% endif %}</p>
+            <a href="{% url 'finance:dues' %}" class="btn-gold btn-sm mt-4 w-full">Pay my dues</a>
+          {% endif %}
+        {% else %}
+          <p class="mt-1 text-[11px] text-[#a9bdb3]">The Finance Officer has not opened a dues cycle yet.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Announcements -->
+    <section class="card p-5">
+      <p class="eyebrow">Notice board</p>
+      <div class="mt-3 space-y-4">
+        {% for note in announcements %}
+          <div class="border-l-2 border-gold pl-3">
+            <p class="text-[13px] font-bold text-ink">{{ note.title }}</p>
+            <p class="mt-1 text-xs leading-5 text-muted">{{ note.body }}</p>
+          </div>
+        {% empty %}
+          <p class="text-xs leading-5 text-muted">No new announcements. Check the newsroom for updates.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Quick links -->
+    <section class="card p-5">
+      <p class="eyebrow">Quick links</p>
+      <div class="mt-3 grid gap-1">
+        <a href="{% url 'finance:dues' %}" class="flex items-center justify-between rounded-lg px-2 py-2.5 text-[13px] font-semibold text-muted transition hover:bg-surface2 hover:text-ink">Dues &amp; receipts <span aria-hidden="true">→</span></a>
+        <a href="{% url 'library:list' %}" class="flex items-center justify-between rounded-lg px-2 py-2.5 text-[13px] font-semibold text-muted transition hover:bg-surface2 hover:text-ink">Past questions <span aria-hidden="true">→</span></a>
+        <a href="{% url 'events:list' %}" class="flex items-center justify-between rounded-lg px-2 py-2.5 text-[13px] font-semibold text-muted transition hover:bg-surface2 hover:text-ink">Programmes <span aria-hidden="true">→</span></a>
+        <a href="{% url 'accounts:profile' %}" class="flex items-center justify-between rounded-lg px-2 py-2.5 text-[13px] font-semibold text-muted transition hover:bg-surface2 hover:text-ink">My profile <span aria-hidden="true">→</span></a>
+        <a href="{% url 'accounts:password_change' %}" class="flex items-center justify-between rounded-lg px-2 py-2.5 text-[13px] font-semibold text-muted transition hover:bg-surface2 hover:text-ink">Change password <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    {% if user.can_manage_finance and recent_payments %}
+    <section class="card p-5">
+      <p class="eyebrow">Recent payments</p>
+      <div class="mt-3 space-y-3">
+        {% for payment in recent_payments %}
+          <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0"><p class="truncate text-[12px] font-semibold text-ink">{{ payment.student.short_name }}</p><p class="text-[10px] text-muted">{{ payment.paid_at|date:"j M, g:i A" }}</p></div>
+            <span class="text-[12px] font-bold text-success">₦{{ payment.amount|floatformat:0|intcomma }}</span>
+          </div>
+        {% endfor %}
+      </div>
+      <a href="{% url 'money:overview' %}" class="mt-4 block text-center text-[11px] font-bold text-brand hover:text-ink">Open finance →</a>
+    </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base_dashboard.html" %}
+{% load static %}
+{% block title %}Import students · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}People &amp; access{% endblock %}
+{% block page_title %}Import students{% endblock %}
+
+{% block dashboard_content %}
+<div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+  <div>
+    <a href="{% url 'people:list' %}" class="text-xs font-bold text-muted hover:text-ink">← All students</a>
+    <form method="post" enctype="multipart/form-data" class="card mt-4 p-6 sm:p-8" novalidate>
+      {% csrf_token %}
+      <div class="flex items-start gap-4">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M8 8l4-4 4 4M4 16v2.5A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5V16" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div><h2 class="font-display text-xl font-semibold text-ink">Upload a CSV</h2><p class="mt-1 text-sm text-muted">Create accounts in bulk. Each row becomes one member profile with a one-time password.</p></div>
+      </div>
+
+      <div class="mt-6">{% include "partials/field.html" with field=form.csv_file %}</div>
+      <div class="mt-4">{% include "partials/checkbox.html" with field=form.send_emails %}</div>
+
+      <div class="mt-6 rounded-xl border border-line bg-surface2/50 p-4">
+        <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Before you upload</p>
+        <ul class="mt-2 space-y-1.5 text-[11px] leading-5 text-muted">
+          <li>• The first row must contain column headings.</li>
+          <li>• Rows with duplicate matric numbers or emails are skipped and reported.</li>
+          <li>• Unknown faculties or departments are reported, not guessed.</li>
+          <li>• Students are prompted to change their password at first sign-in.</li>
+        </ul>
+        <a href="{% static 'sample-students.csv' %}" class="link-underline mt-3 text-[11px]">Download the sample CSV <span aria-hidden="true">↓</span></a>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+        <a href="{% url 'people:list' %}" class="btn-ghost btn-sm">Cancel</a>
+        <button type="submit" class="btn-primary btn-sm">Import students</button>
+      </div>
+    </form>
+  </div>
+
+  <aside class="space-y-4">
+    <section class="card p-5">
+      <p class="eyebrow">Accepted columns</p>
+      <div class="mt-3 overflow-hidden rounded-xl border border-line">
+        <table class="w-full text-left text-[11px]">
+          <thead class="bg-surface2 text-[9px] uppercase tracking-[0.1em] text-muted"><tr><th class="px-3 py-2">Column</th><th class="px-3 py-2">Example</th></tr></thead>
+          <tbody class="divide-y divide-line">
+            <tr><td class="px-3 py-2 font-semibold">full_name</td><td class="px-3 py-2 text-muted">Aisha Bello</td></tr>
+            <tr><td class="px-3 py-2 font-semibold">email</td><td class="px-3 py-2 text-muted">aisha@example.com</td></tr>
+            <tr><td class="px-3 py-2 font-semibold">matric_no</td><td class="px-3 py-2 text-muted">AATU/CS/22/001</td></tr>
+            <tr><td class="px-3 py-2 font-semibold">faculty</td><td class="px-3 py-2 text-muted">Faculty code</td></tr>
+            <tr><td class="px-3 py-2 font-semibold">department</td><td class="px-3 py-2 text-muted">Dept code</td></tr>
+            <tr><td class="px-3 py-2 font-semibold">level</td><td class="px-3 py-2 text-muted">200</td></tr>
+            <tr><td class="px-3 py-2 font-semibold">gender</td><td class="px-3 py-2 text-muted">M or F</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-[10px] leading-4 text-muted">You may also use <span class="font-semibold">first_name</span> and <span class="font-semibold">last_name</span> instead of full_name.</p>
+    </section>
+
+    <section class="rounded-2xl border border-gold/25 bg-goldsoft/50 p-5">
+      <p class="text-[11px] font-bold text-ink">Only 500 rows at a time</p>
+      <p class="mt-1 text-[11px] leading-5 text-muted">This keeps the import reliable. Split larger lists into batches and import them one after another.</p>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Past questions · {{ site_name }}{% endblock %}
+{% block description %}Browse and download past examination questions by faculty, department and level.{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden border-b border-line bg-surface2/50">
+  <div class="pattern-rings absolute inset-0 opacity-40" aria-hidden="true"></div>
+  <div class="container-page relative py-14 sm:py-18">
+    <div class="max-w-2xl">
+      <p class="eyebrow">Academic resources</p>
+      <h1 class="mt-3 display-lg text-ink">Past questions library.</h1>
+      <p class="mt-4 lede">Find past examination questions by faculty, department and level. Downloads are free for signed-in members.</p>
+    </div>
+
+    <form method="get" class="mt-8 grid gap-3 rounded-2xl border border-line bg-surface p-4 shadow-soft sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_0.8fr_auto]">
+      <div>
+        <label for="q" class="sr-only">Course code or title</label>
+        <input type="search" name="q" id="q" value="{{ query }}" placeholder="Course code or title" class="field-input !py-2.5 text-[13px]">
+      </div>
+      <div>
+        <label for="faculty" class="sr-only">Faculty</label>
+        <select name="faculty" id="faculty" class="field-input select !py-2.5 text-[13px]">
+          <option value="">All faculties</option>
+          {% for faculty in faculties %}
+            <option value="{{ faculty.pk }}" {% if selected_faculty == faculty.pk|stringformat:"s" %}selected{% endif %}>{{ faculty.code }} — {{ faculty.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="department" class="sr-only">Department</label>
+        <select name="department" id="department" class="field-input select !py-2.5 text-[13px]">
+          <option value="">All departments</option>
+          {% for department in departments %}
+            <option value="{{ department.pk }}" {% if selected_department == department.pk|stringformat:"s" %}selected{% endif %}>{{ department.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="level" class="sr-only">Level</label>
+        <select name="level" id="level" class="field-input select !py-2.5 text-[13px]">
+          <option value="">All levels</option>
+          {% for value, label in levels %}
+            <option value="{{ value }}" {% if selected_level == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn-primary btn-sm !py-3">Filter</button>
+      {% if query or selected_faculty or selected_department or selected_level %}
+        <a href="{% url 'library:list' %}" class="btn-ghost btn-sm text-center">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+</section>
+
+<section class="container-page py-14 sm:py-20">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-sm font-semibold text-ink">{{ total }} resource{{ total|pluralize }}{% if selected_faculty or selected_department or selected_level or query %} matching your filters{% endif %}</p>
+    {% if not user.is_authenticated %}
+      <p class="text-xs text-muted">Browsing is open · <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="font-bold text-brand">sign in to download</a></p>
+    {% endif %}
+  </div>
+
+  {% if page.object_list %}
+    <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {% for question in page.object_list %}
+        <article class="card group flex flex-col p-5 transition duration-300 hover:-translate-y-1 hover:shadow-lift">
+          <div class="flex items-start justify-between gap-3">
+            <span class="rounded-lg bg-brand px-2.5 py-1.5 font-mono text-[11px] font-bold tracking-wide text-onbrand">{{ question.course_code }}</span>
+            <span class="badge-neutral">{{ question.level }}L</span>
+          </div>
+          <h2 class="mt-4 font-display text-lg font-semibold leading-snug text-ink"><a href="{% url 'library:detail' question.pk %}" class="transition hover:text-brand">{{ question.course_title }}</a></h2>
+          <p class="mt-2 text-[12px] leading-5 text-muted">{{ question.department.name }} · {{ question.faculty.code }}</p>
+          <div class="mt-auto flex items-center justify-between gap-3 border-t border-line pt-4">
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">{{ question.session }}</p>
+              <p class="mt-0.5 text-[10px] text-muted">{{ question.downloads }} download{{ question.downloads|pluralize }}</p>
+            </div>
+            {% if user.is_authenticated %}
+              <a href="{% url 'library:download' question.pk %}" class="btn-primary btn-sm">Download</a>
+            {% else %}
+              <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="btn-outline btn-sm">Sign in</a>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    {% include "partials/pagination.html" with page=page query_string=query_string %}
+  {% else %}
+    <div class="empty-state mt-6">
+      <div class="grid h-12 w-12 place-items-center rounded-full bg-brandsoft text-brand">
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5.5A2.5 2.5 0 016.5 3H19v16H6.5A2.5 2.5 0 004 21.5" stroke-linecap="round"/><path d="M8 7h7M8 11h5" stroke-linecap="round"/></svg>
+      </div>
+      <p class="mt-4 font-display text-lg font-semibold text-ink">No past questions found</p>
+      <p class="mt-1 max-w-sm text-sm text-muted">{% if query or selected_faculty or selected_department or selected_level %}Try a broader filter — or search by a different course code.{% else %}The library is being stocked. Check back soon.{% endif %}</p>
+      {% if query or selected_faculty or selected_department or selected_level %}<a href="{% url 'library:list' %}" class="btn-outline btn-sm mt-5">Clear filters</a>{% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

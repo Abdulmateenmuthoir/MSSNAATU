@@ -1,0 +1,15 @@
+Assalamu alaikum {{ student.first_name }},
+
+Our records show that your annual dues for {{ cycle.session }} are still
+outstanding.
+
+Amount: ₦{{ cycle.amount }}
+{% if cycle.due_date %}Due date: {{ cycle.due_date|date:"j F Y" }}{% endif %}
+
+Pay securely from your dashboard:
+{{ pay_url }}
+
+If you have already paid, please reply to this email so the Finance Officer
+can update your record. Jazakumullahu khairan.
+
+MSSN AATU

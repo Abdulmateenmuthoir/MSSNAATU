@@ -1,0 +1,53 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Newsroom · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Content{% endblock %}
+{% block page_title %}Newsroom{% endblock %}
+
+{% block dashboard_content %}
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div class="flex gap-2">
+    <a href="{% url 'newsroom:list' %}" class="badge {% if not status %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">All</a>
+    <a href="?status=published" class="badge {% if status == 'published' %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">Published</a>
+    <a href="?status=drafts" class="badge {% if status == 'drafts' %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">Drafts</a>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <a href="{% url 'newsroom:comments' %}" class="btn-outline btn-sm">Moderate comments</a>
+    <a href="{% url 'newsroom:create' %}" class="btn-primary btn-sm">New article</a>
+  </div>
+</div>
+
+<div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
+  <div class="overflow-x-auto">
+    <table class="data-table min-w-[820px]">
+      <thead><tr><th>Article</th><th>Category</th><th>Author</th><th>Status</th><th>Views</th><th>Comments</th><th class="text-right">Actions</th></tr></thead>
+      <tbody>
+        {% for post in posts %}
+          <tr>
+            <td>
+              <p class="max-w-xs truncate text-[13px] font-bold text-ink">{{ post.title }}</p>
+              <p class="mt-0.5 text-[10px] text-muted">{% if post.published_at %}{{ post.published_at|date:"j M Y" }}{% else %}Created {{ post.created_at|date:"j M Y" }}{% endif %}</p>
+            </td>
+            <td><span class="badge-neutral">{{ post.get_category_display }}</span></td>
+            <td class="text-[12px] text-muted">{{ post.author.short_name }}</td>
+            <td>{% if post.is_published %}<span class="badge-green">Published</span>{% else %}<span class="badge-gold">Draft</span>{% endif %}</td>
+            <td class="text-[12px] font-semibold text-ink">{{ post.views }}</td>
+            <td class="text-[12px] text-muted">{{ post.comment_count }}</td>
+            <td>
+              <div class="flex items-center justify-end gap-2">
+                <a href="{{ post.get_absolute_url }}" class="text-[11px] font-bold text-muted hover:text-ink">View</a>
+                <a href="{% url 'newsroom:edit' post.pk %}" class="text-[11px] font-bold text-brand hover:text-ink">Edit</a>
+                <form method="post" action="{% url 'newsroom:delete' post.pk %}" onsubmit="return confirm('Delete this article permanently?')">
+                  {% csrf_token %}
+                  <button type="submit" class="text-[11px] font-bold text-danger hover:text-ink">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="!py-12 text-center"><p class="font-display text-lg font-semibold text-ink">No articles yet</p><p class="mt-1 text-xs text-muted">Publish the first story from the Editorial Board.</p><a href="{% url 'newsroom:create' %}" class="btn-primary btn-sm mt-4">Write an article</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% load static %}
+<footer class="relative mt-24 overflow-hidden bg-[#0a2c22] text-[#e9efe9]">
+  <div class="pattern-rings absolute inset-0 opacity-60" aria-hidden="true"></div>
+  <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#123d30] blur-3xl" aria-hidden="true"></div>
+
+  <div class="container-page relative py-16">
+    <div class="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
+      <div>
+        <a href="{% url 'core:home' %}" class="flex items-center gap-3">
+          <span class="grid h-10 w-10 place-items-center rounded-full border border-[#d8b45a]/40 text-[#d8b45a]">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2.6l2.3 6.1 6.1 2.3-6.1 2.3L12 19.4l-2.3-6.1L3.6 11l6.1-2.3L12 2.6z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="leading-none">
+            <span class="block font-display text-xl font-semibold text-white">MSSN <span class="text-[#d8b45a]">AATU</span></span>
+            <span class="mt-1 block text-[8px] font-bold uppercase tracking-[0.18em] text-[#93aa9e]">Abiola Ajimobi Technical University</span>
+          </span>
+        </a>
+        <p class="mt-5 max-w-xs text-[13px] leading-6 text-[#a9bdb3]">
+          The official home of the Muslim Students' Society at AATU, Ibadan — nurturing knowledge, character and service since our founding.
+        </p>
+        <p class="mt-6 font-arabic text-lg leading-8 text-[#d8b45a]" dir="rtl" lang="ar">وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ</p>
+        <p class="mt-1 text-[11px] italic text-[#8ea79a]">“And cooperate in righteousness and piety.” — Qur'an 5:2</p>
+      </div>
+
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d8b45a]">Explore</p>
+        <ul class="mt-4 space-y-2.5 text-[13px] text-[#b7c8bf]">
+          <li><a href="{% url 'core:about' %}" class="transition hover:text-white">About the society</a></li>
+          <li><a href="{% url 'core:executives' %}" class="transition hover:text-white">Executives</a></li>
+          <li><a href="{% url 'core:committees' %}" class="transition hover:text-white">Standing committees</a></li>
+          <li><a href="{% url 'events:list' %}" class="transition hover:text-white">Events &amp; programmes</a></li>
+          <li><a href="{% url 'blog:list' %}" class="transition hover:text-white">Newsroom</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d8b45a]">Members</p>
+        <ul class="mt-4 space-y-2.5 text-[13px] text-[#b7c8bf]">
+          <li><a href="{% url 'accounts:login' %}" class="transition hover:text-white">Sign in</a></li>
+          <li><a href="{% url 'dashboard:home' %}" class="transition hover:text-white">Dashboard</a></li>
+          <li><a href="{% url 'finance:dues' %}" class="transition hover:text-white">Pay dues</a></li>
+          <li><a href="{% url 'library:list' %}" class="transition hover:text-white">Past questions</a></li>
+          <li><a href="{% url 'accounts:password_forgot' %}" class="transition hover:text-white">Forgot password</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d8b45a]">The office</p>
+        <ul class="mt-4 space-y-3 text-[13px] leading-6 text-[#b7c8bf]">
+          <li>Muslim Students' Society of Nigeria<br>Abiola Ajimobi Technical University<br>Ibadan, Oyo State</li>
+          <li><a href="mailto:{{ site_email }}" class="transition hover:text-white">{{ site_email }}</a></li>
+          <li><a href="{% url 'core:contact' %}" class="inline-flex items-center gap-1.5 font-semibold text-[#d8b45a] transition hover:text-white">Contact the PRO office <span aria-hidden="true">→</span></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-[11px] text-[#8ea79a] sm:flex-row sm:items-center sm:justify-between">
+      <p>© {% now "Y" %} Muslim Students' Society of Nigeria, AATU. All rights reserved.</p>
+      <p class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-[#d8b45a]"></span> Built for the Office of the Public Relations Officer</p>
+    </div>
+  </div>
+</footer>

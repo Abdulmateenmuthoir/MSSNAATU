@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ question.course_code }} · Past questions · {{ site_name }}{% endblock %}
+{% block description %}{{ question.course_title }} past questions — {{ question.session }}.{% endblock %}
+
+{% block content %}
+<section class="border-b border-line bg-surface2/50">
+  <div class="container-page py-8">
+    <nav class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-muted" aria-label="Breadcrumb">
+      <a href="{% url 'core:home' %}" class="hover:text-ink">Home</a><span aria-hidden="true">/</span>
+      <a href="{% url 'library:list' %}" class="hover:text-ink">Library</a><span aria-hidden="true">/</span>
+      <a href="{% url 'library:list' %}?faculty={{ question.faculty.pk }}&department={{ question.department.pk }}" class="hover:text-ink">{{ question.department.name }}</a><span aria-hidden="true">/</span>
+      <span class="text-ink">{{ question.course_code }}</span>
+    </nav>
+  </div>
+</section>
+
+<section class="container-page py-12 sm:py-16">
+  <div class="grid gap-10 lg:grid-cols-[1fr_360px] lg:gap-14">
+    <div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="badge-gold">{{ question.level }} Level</span>
+        <span class="badge-neutral">{{ question.session }}</span>
+        <span class="badge-neutral">{{ question.extension|upper }} file</span>
+      </div>
+      <p class="mt-6 font-mono text-sm font-bold tracking-wider text-brand">{{ question.course_code }}</p>
+      <h1 class="mt-2 display-lg text-ink">{{ question.course_title }}</h1>
+      <p class="mt-4 lede">Past examination questions for {{ question.department.name }}, {{ question.faculty.name }}, uploaded by the Past Questions Manager.</p>
+
+      <dl class="mt-8 grid gap-4 border-t border-line pt-6 sm:grid-cols-2">
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Faculty</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ question.faculty.name }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Department</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ question.department.name }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Level</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ question.get_level_display }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Session</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ question.session }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Uploaded</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ question.created_at|date:"j F Y" }}</dd></div>
+        <div><dt class="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Downloads</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ question.downloads }}</dd></div>
+      </dl>
+    </div>
+
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-6 text-center">
+        <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brandsoft text-brand">
+          <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V5.5A2.5 2.5 0 016.5 3H19v16H6.5A2.5 2.5 0 004 21.5" stroke-linecap="round"/><path d="M8 7h7M8 11h5" stroke-linecap="round"/></svg>
+        </span>
+        <h2 class="mt-4 font-display text-xl font-semibold text-ink">Ready to download</h2>
+        <p class="mt-2 text-[13px] leading-6 text-muted">This resource is available to signed-in members only.</p>
+        {% if user.is_authenticated %}
+          <a href="{% url 'library:download' question.pk %}" class="btn-primary mt-5 w-full">Download {{ question.extension|upper }}</a>
+          <p class="mt-3 text-[11px] text-muted">Your download will begin immediately.</p>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="btn-primary mt-5 w-full">Sign in to download</a>
+          <p class="mt-3 text-[11px] text-muted">No registration form — your account is created by the office.</p>
+        {% endif %}
+      </div>
+      <a href="{% url 'library:list' %}?department={{ question.department.pk }}" class="mt-4 flex items-center justify-center gap-1.5 text-xs font-bold text-muted hover:text-ink"><span aria-hidden="true">←</span> More from {{ question.department.code }}</a>
+    </aside>
+  </div>
+
+  {% if related %}
+  <div class="mt-14 border-t border-line pt-10">
+    <p class="eyebrow">Related resources</p>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {% for item in related %}
+        <a href="{% url 'library:detail' item.pk %}" class="card-flat p-4 transition hover:border-brand/30 hover:shadow-soft">
+          <p class="font-mono text-[11px] font-bold text-brand">{{ item.course_code }}</p>
+          <p class="mt-1.5 line-clamp-2 text-[13px] font-semibold leading-5 text-ink">{{ item.course_title }}</p>
+          <p class="mt-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{{ item.session }} · {{ item.level }}L</p>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

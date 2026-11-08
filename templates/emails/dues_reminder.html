@@ -1,0 +1,12 @@
+{% extends "emails/base_email.html" %}
+{% block content %}
+<p style="margin:0 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#8a6a1f;">Dues reminder</p>
+<h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:#0e3b2e;">A gentle reminder</h1>
+<p style="margin:0 0 18px;font-size:15px;line-height:1.65;">Assalamu alaikum {{ student.first_name }}, our records show that your annual dues for {{ cycle.session }} are still outstanding.</p>
+<table role="presentation" width="100%" style="border-collapse:collapse;background:#f6f2e9;border-radius:10px;margin:0 0 20px;">
+  <tr><td style="padding:12px 18px;font-size:13px;color:#5b6b63;">Amount</td><td style="padding:12px 18px;font-size:18px;font-weight:700;text-align:right;color:#0e3b2e;">₦{{ cycle.amount }}</td></tr>
+  {% if cycle.due_date %}<tr><td style="padding:12px 18px;font-size:13px;color:#5b6b63;border-top:1px solid #e3dccd;">Due date</td><td style="padding:12px 18px;font-size:15px;text-align:right;color:#14201b;border-top:1px solid #e3dccd;">{{ cycle.due_date|date:"j F Y" }}</td></tr>{% endif %}
+</table>
+<p style="margin:0 0 18px;"><a href="{{ pay_url }}" style="display:inline-block;background:#0e4b3a;color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:8px;font-weight:700;font-size:14px;">Pay your dues</a></p>
+<p style="margin:0;font-size:13px;line-height:1.6;color:#5b6b63;">If you have already paid, please reply to this email so the Finance Officer can update your record. Jazakumullahu khairan.</p>
+{% endblock %}

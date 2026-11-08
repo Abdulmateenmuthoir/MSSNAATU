@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Page not found · {{ site_name }}{% endblock %}
+{% block description %}We could not find that page.{% endblock %}
+
+{% block content %}
+<section class="container-page flex min-h-[68vh] items-center py-20">
+  <div class="mx-auto max-w-xl text-center">
+    <p class="font-display text-[clamp(4rem,12vw,8rem)] font-semibold leading-none tracking-tight text-gold/25">404</p>
+    <h1 class="mt-2 display-md text-ink">This page has moved on.</h1>
+    <p class="mt-4 text-sm leading-7 text-muted">
+      The link may be old, misspelled, or the page may have been taken down. Let us point you back to somewhere useful.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="{% url 'core:home' %}" class="btn-primary">Back to the home page</a>
+      <a href="{% url 'core:contact' %}" class="btn-outline">Contact the office</a>
+    </div>
+    <div class="mt-10 grid gap-2 text-left sm:grid-cols-2">
+      <a href="{% url 'events:list' %}" class="card-flat px-4 py-3 text-[13px] font-semibold text-muted transition hover:border-brand/40 hover:text-ink">Programmes →</a>
+      <a href="{% url 'blog:list' %}" class="card-flat px-4 py-3 text-[13px] font-semibold text-muted transition hover:border-brand/40 hover:text-ink">Newsroom →</a>
+      <a href="{% url 'library:list' %}" class="card-flat px-4 py-3 text-[13px] font-semibold text-muted transition hover:border-brand/40 hover:text-ink">Past questions →</a>
+      <a href="{% url 'accounts:login' %}" class="card-flat px-4 py-3 text-[13px] font-semibold text-muted transition hover:border-brand/40 hover:text-ink">Member sign in →</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

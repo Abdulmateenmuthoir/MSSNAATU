@@ -1,0 +1,13 @@
+Assalamu alaikum {{ student.first_name }},
+
+Jazakumullahu khairan — your dues for {{ cycle.session }} have been received.
+
+Receipt: {{ payment.receipt_number }}
+Amount: ₦{{ payment.amount }}
+Date: {{ payment.paid_at|date:"j F Y, g:i A" }}
+Reference: {{ payment.reference }}
+
+You can view and print your receipt here:
+{{ site_url }}/dues/receipt/{{ payment.reference }}/
+
+MSSN AATU

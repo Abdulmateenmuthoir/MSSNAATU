@@ -1,0 +1,49 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Past questions · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Library{% endblock %}
+{% block page_title %}Past questions manager{% endblock %}
+
+{% block dashboard_content %}
+<div class="grid gap-4 sm:grid-cols-3">
+  <div class="card p-5"><p class="stat-label">Resources</p><p class="mt-2 stat-value">{{ stats.total }}</p></div>
+  <div class="card p-5"><p class="stat-label">Downloads</p><p class="mt-2 stat-value">{{ stats.downloads }}</p></div>
+  <div class="card p-5"><p class="stat-label">Faculties covered</p><p class="mt-2 stat-value">{{ stats.faculties }}</p></div>
+</div>
+
+<div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <form method="get" class="flex w-full max-w-md gap-2">
+    <label for="q" class="sr-only">Search</label>
+    <input type="search" name="q" id="q" value="{{ query }}" placeholder="Search course code or title" class="field-input !py-2.5 text-[13px]">
+    <button type="submit" class="btn-outline btn-sm shrink-0">Search</button>
+  </form>
+  <a href="{% url 'pastquestions:create' %}" class="btn-primary btn-sm self-start">Upload resource</a>
+</div>
+
+<div class="mt-5 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
+  <div class="overflow-x-auto">
+    <table class="data-table min-w-[820px]">
+      <thead><tr><th>Course</th><th>Department</th><th>Level</th><th>Session</th><th>Downloads</th><th class="text-right">Actions</th></tr></thead>
+      <tbody>
+        {% for question in questions %}
+          <tr>
+            <td><p class="font-mono text-[11px] font-bold text-brand">{{ question.course_code }}</p><p class="mt-0.5 max-w-xs truncate text-[12px] font-semibold text-ink">{{ question.course_title }}</p></td>
+            <td><p class="text-[12px] font-semibold text-ink">{{ question.department.code }}</p><p class="text-[10px] text-muted">{{ question.faculty.code }}</p></td>
+            <td><span class="badge-neutral">{{ question.level }}L</span></td>
+            <td class="text-[12px] text-muted">{{ question.session }}</td>
+            <td class="text-[12px] font-semibold text-ink">{{ question.downloads }}</td>
+            <td>
+              <div class="flex items-center justify-end gap-2">
+                <a href="{% url 'library:detail' question.pk %}" class="text-[11px] font-bold text-muted hover:text-ink">View</a>
+                <a href="{% url 'pastquestions:edit' question.pk %}" class="text-[11px] font-bold text-brand hover:text-ink">Edit</a>
+                <form method="post" action="{% url 'pastquestions:delete' question.pk %}" onsubmit="return confirm('Remove this resource from the library?')">{% csrf_token %}<button type="submit" class="text-[11px] font-bold text-danger hover:text-ink">Delete</button></form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="!py-12 text-center"><p class="font-display text-lg font-semibold text-ink">The library is empty</p><p class="mt-1 text-xs text-muted">Upload the first past question for members.</p><a href="{% url 'pastquestions:create' %}" class="btn-primary btn-sm mt-4">Upload resource</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

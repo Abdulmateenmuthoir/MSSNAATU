@@ -1,0 +1,73 @@
+{% load static %}
+<header class="sticky top-0 z-40 border-b border-line/80 bg-paper/85 backdrop-blur-xl">
+  <div class="hidden border-b border-line/70 bg-surface2/50 lg:block">
+    <div class="container-page flex h-8 items-center justify-between text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
+      <span>Muslim Students' Society of Nigeria · AATU Ibadan</span>
+      <span class="flex items-center gap-5">
+        <span class="text-brand">{{ current_session }}</span>
+        <span class="h-3 w-px bg-line"></span>
+        <span>Office of the Public Relations Officer</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="container-page flex h-[68px] items-center justify-between gap-4">
+    <a href="{% url 'core:home' %}" class="shrink-0" aria-label="{{ site_name }} home">
+      {% include "partials/logo.html" %}
+    </a>
+
+    {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
+    <nav class="hidden items-center gap-7 lg:flex" aria-label="Main">
+      <a href="{% url 'core:home' %}" class="nav-link {% if name == 'home' %}is-active{% endif %}">Home</a>
+      <a href="{% url 'core:about' %}" class="nav-link {% if name == 'about' %}is-active{% endif %}">About</a>
+      <a href="{% url 'core:executives' %}" class="nav-link {% if name == 'executives' %}is-active{% endif %}">Executives</a>
+      <a href="{% url 'core:committees' %}" class="nav-link {% if name == 'committees' %}is-active{% endif %}">Committees</a>
+      <a href="{% url 'events:list' %}" class="nav-link {% if ns == 'events' %}is-active{% endif %}">Programmes</a>
+      <a href="{% url 'blog:list' %}" class="nav-link {% if ns == 'blog' %}is-active{% endif %}">Newsroom</a>
+      <a href="{% url 'library:list' %}" class="nav-link {% if ns == 'library' %}is-active{% endif %}">Library</a>
+    </nav>
+    {% endwith %}
+
+    <div class="flex items-center gap-2">
+      {% include "partials/theme_toggle.html" %}
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard:home' %}" class="hidden items-center gap-2.5 rounded-full border border-line bg-surface py-1.5 pl-1.5 pr-4 transition hover:border-brand/40 sm:flex">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="" class="h-8 w-8 rounded-full object-cover">
+          {% else %}
+            <span class="grid h-8 w-8 place-items-center rounded-full bg-brand text-[11px] font-bold text-onbrand">{{ user.initials }}</span>
+          {% endif %}
+          <span class="text-xs font-bold text-ink">{{ user.short_name }}</span>
+        </a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn-primary btn-sm hidden sm:inline-flex">
+          Member sign in
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      {% endif %}
+      <button type="button" data-mobile-toggle class="btn-icon lg:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden border-t border-line bg-paper lg:hidden">
+    <nav class="container-page grid gap-1 py-4" aria-label="Mobile">
+      <a href="{% url 'core:home' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Home</a>
+      <a href="{% url 'core:about' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">About</a>
+      <a href="{% url 'core:executives' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Executives</a>
+      <a href="{% url 'core:committees' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Standing committees</a>
+      <a href="{% url 'events:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Events &amp; programmes</a>
+      <a href="{% url 'blog:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Newsroom</a>
+      <a href="{% url 'library:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Past questions</a>
+      <a href="{% url 'core:contact' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Contact the office</a>
+      <div class="mt-3 border-t border-line pt-4">
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard:home' %}" class="btn-primary w-full">Go to dashboard</a>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="btn-primary w-full">Member sign in</a>
+        {% endif %}
+      </div>
+    </nav>
+  </div>
+</header>

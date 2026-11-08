@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}My dues · {{ site_name }}{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block body_class %}bg-paper{% endblock %}
+{% block main_class %}min-h-screen{% endblock %}
+
+{% block content %}
+<div class="border-b border-line bg-surface">
+  <div class="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+    <a href="{% url 'dashboard:home' %}" class="flex items-center gap-2 text-xs font-bold text-muted hover:text-ink"><span aria-hidden="true">←</span> Back to dashboard</a>
+    <div class="flex items-center gap-2">{% include "partials/theme_toggle.html" %}<a href="{% url 'core:home' %}" class="text-xs font-bold text-muted hover:text-ink">Public site</a></div>
+  </div>
+</div>
+
+<div class="mx-auto max-w-4xl px-5 py-10 sm:px-8 sm:py-14">
+  <p class="eyebrow">Member services</p>
+  <h1 class="mt-3 display-lg text-ink">My annual dues.</h1>
+  <p class="mt-3 max-w-xl text-sm leading-7 text-muted">Dues keep the society running — da'wah programmes, welfare, academic support and the day-to-day work of the office.</p>
+
+  {% if not cycle %}
+    <div class="empty-state mt-8">
+      <div class="grid h-12 w-12 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19M6 14.5h4" stroke-linecap="round"/></svg></div>
+      <p class="mt-4 font-display text-lg font-semibold text-ink">No active dues cycle</p>
+      <p class="mt-1 text-sm text-muted">The Finance Officer has not opened a cycle yet. Check back soon.</p>
+      <a href="{% url 'dashboard:home' %}" class="btn-outline btn-sm mt-5">Back to dashboard</a>
+    </div>
+  {% else %}
+    <div class="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+      <section class="relative overflow-hidden rounded-3xl bg-[#0a2c22] p-6 text-white sm:p-8">
+        <div class="pattern-rings absolute inset-0 opacity-60" aria-hidden="true"></div>
+        <div class="relative">
+          <div class="flex items-start justify-between gap-4">
+            <div><p class="text-[9px] font-bold uppercase tracking-[0.18em] text-[#d8b45a]">Annual dues</p><h2 class="mt-1 font-display text-2xl font-semibold text-white">{{ cycle.session }}</h2></div>
+            {% if payment %}<span class="badge-green !bg-[#d8b45a]/15 !text-[#d8b45a]">Paid</span>{% else %}<span class="badge-gold !bg-white/10 !text-[#d8b45a]">Outstanding</span>{% endif %}
+          </div>
+          <p class="mt-6 font-display text-[clamp(2.5rem,7vw,4rem)] font-semibold leading-none text-white">₦{{ cycle.amount|floatformat:0|intcomma }}</p>
+          <p class="mt-2 text-xs text-[#a9bdb3]">{% if cycle.due_date %}Due by {{ cycle.due_date|date:"j F Y" }}{% else %}Pay at your convenience{% endif %}</p>
+
+          {% if payment %}
+            <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-[#8ea79a]">Receipt</p>
+              <p class="mt-1 font-mono text-sm font-bold text-[#d8b45a]">{{ payment.receipt_number }}</p>
+              <p class="mt-1 text-[11px] text-[#a9bdb3]">Confirmed {{ payment.paid_at|date:"j F Y, g:i A" }}</p>
+            </div>
+            <a href="{% url 'finance:receipt' payment.reference %}" class="btn-gold mt-5 w-full">View and print receipt</a>
+          {% else %}
+            <form method="post" action="{% url 'finance:pay' %}" class="mt-6">
+              {% csrf_token %}
+              <button type="submit" class="btn-gold w-full">Pay ₦{{ cycle.amount|floatformat:0|intcomma }} securely</button>
+            </form>
+            <p class="mt-3 text-center text-[10px] text-[#8ea79a]">{% if paystack_ready %}Paystack · card, bank transfer or USSD{% else %}Demo checkout is enabled in development{% endif %}</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <p class="eyebrow">Why dues matter</p>
+        <ul class="mt-4 space-y-3 text-[13px] leading-6 text-muted">
+          <li class="flex gap-2.5"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span> Funding halaqah, lectures and Ramadan programmes.</li>
+          <li class="flex gap-2.5"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span> Welfare support for members who need it.</li>
+          <li class="flex gap-2.5"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span> Academic resources and the past questions library.</li>
+          <li class="flex gap-2.5"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span> The society's daily administration and outreach.</li>
+        </ul>
+        {% if cycle.note %}<p class="mt-4 rounded-xl bg-surface2/70 px-4 py-3 text-[11px] leading-5 text-muted">{{ cycle.note }}</p>{% endif %}
+        <p class="mt-4 border-t border-line pt-4 text-[10px] leading-5 text-muted">Payments are confirmed automatically and a receipt is emailed to you. Keep it for your records.</p>
+      </section>
+    </div>
+
+    <section class="card mt-6 overflow-hidden">
+      <div class="border-b border-line px-5 py-4"><h2 class="font-display text-lg font-semibold text-ink">Payment history</h2></div>
+      <div class="overflow-x-auto">
+        <table class="data-table min-w-[620px]">
+          <thead><tr><th>Session</th><th>Amount</th><th>Status</th><th>Reference</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            {% for row in history %}
+              <tr>
+                <td class="text-[12px] font-semibold text-ink">{{ row.cycle.session }}</td>
+                <td class="text-[12px] font-bold text-ink">₦{{ row.amount|floatformat:0|intcomma }}</td>
+                <td>{% if row.status == 'success' %}<span class="badge-green">Paid</span>{% elif row.status == 'pending' %}<span class="badge-gold">Pending</span>{% else %}<span class="badge-red">Failed</span>{% endif %}</td>
+                <td class="font-mono text-[10px] text-muted">{{ row.reference }}</td>
+                <td class="text-[11px] text-muted">{{ row.paid_at|date:"j M Y"|default:row.created_at|date:"j M Y" }}</td>
+                <td class="text-right">{% if row.status == 'success' %}<a href="{% url 'finance:receipt' row.reference %}" class="text-[11px] font-bold text-brand hover:text-ink">Receipt →</a>{% endif %}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="!py-10 text-center text-xs text-muted">No payment attempts yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% endif %}
+
+  <p class="mt-8 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Need help with a payment? <a href="{% url 'core:contact' %}" class="text-brand">Contact the Finance Officer</a></p>
+</div>
+{% endblock %}
