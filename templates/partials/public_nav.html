@@ -1,5 +1,5 @@
 {% load static %}
-<header class="sticky top-0 z-40 border-b border-line/80 bg-paper/85 backdrop-blur-xl">
+<header class="sticky top-0 z-40 bg-paper/85 backdrop-blur-xl">
   <div class="hidden border-b border-line/70 bg-surface2/50 lg:block">
     <div class="container-page flex h-8 items-center justify-between text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
       <span>Muslim Students' Society of Nigeria · AATU Ibadan</span>
@@ -11,7 +11,7 @@
     </div>
   </div>
 
-  <div class="container-page flex h-[68px] items-center justify-between gap-4">
+  <div class="container-page mt-3 flex h-[68px] items-center justify-between gap-4 rounded-full border border-ink bg-surface shadow-soft">
     <a href="{% url 'core:home' %}" class="shrink-0" aria-label="{{ site_name }} home">
       {% include "partials/logo.html" %}
     </a>
@@ -21,6 +21,7 @@
       <a href="{% url 'core:home' %}" class="nav-link {% if name == 'home' %}is-active{% endif %}">Home</a>
       <a href="{% url 'core:about' %}" class="nav-link {% if name == 'about' %}is-active{% endif %}">About</a>
       <a href="{% url 'core:executives' %}" class="nav-link {% if name == 'executives' %}is-active{% endif %}">Executives</a>
+      <a href="{% url 'core:branches' %}" class="nav-link {% if name == 'branches' %}is-active{% endif %}">Branches</a>
       <a href="{% url 'core:committees' %}" class="nav-link {% if name == 'committees' %}is-active{% endif %}">Committees</a>
       <a href="{% url 'events:list' %}" class="nav-link {% if ns == 'events' %}is-active{% endif %}">Programmes</a>
       <a href="{% url 'blog:list' %}" class="nav-link {% if ns == 'blog' %}is-active{% endif %}">Articles</a>
@@ -56,6 +57,7 @@
       <a href="{% url 'core:home' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Home</a>
       <a href="{% url 'core:about' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">About</a>
       <a href="{% url 'core:executives' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Executives</a>
+      <a href="{% url 'core:branches' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Branches</a>
       <a href="{% url 'core:committees' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Standing committees</a>
       <a href="{% url 'events:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Events &amp; programmes</a>
       <a href="{% url 'blog:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Articles</a>

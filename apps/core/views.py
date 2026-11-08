@@ -54,6 +54,26 @@ def executives(request):
     sessions = list(
         Executive.objects.values_list("session", flat=True).distinct().order_by("-session")
     )
+
+
+def branches(request):
+    return render(request, "core/branches.html", {
+        "health_courses": ["Medical Laboratory Science", "Nursing Science", "Public Health"],
+        "engineering_courses": [
+            "Agricultural Engineering", "Biomedical Engineering", "Chemical Engineering", "Civil Engineering",
+            "Computer Engineering", "Electrical and Electronic Engineering", "Food Science and Technology",
+            "Industrial and Production Engineering", "Mechanical Engineering", "Mechatronics Engineering", "Petroleum Engineering",
+        ],
+        "science_courses": [
+            "Biochemistry", "Biotechnology", "Computer Science", "Cyber Security", "Forensic Science",
+            "Industrial Chemistry", "Mathematics", "Microbiology", "Physics with Electronics",
+            "Science Laboratory Technology", "Software Engineering", "Statistics",
+        ],
+        "environmental_courses": [
+            "Architecture", "Building Technology", "Estate Management", "Quantity Surveying",
+            "Surveying and Geoinformatics", "Urban and Regional Planning",
+        ],
+    })
     selected = request.GET.get("session") or (sessions[0] if sessions else "1448/1449 AH")
     people = Executive.objects.filter(session=selected).select_related("department")
     return render(

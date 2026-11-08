@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("about/", views.about, name="about"),
     path("executives/", views.executives, name="executives"),
+    path("branches/", views.branches, name="branches"),
     path("committees/", views.committees, name="committees"),
     path("contact/", views.contact, name="contact"),
     path("newsletter/subscribe/", views.newsletter_subscribe, name="newsletter_subscribe"),

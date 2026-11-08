@@ -10,6 +10,7 @@
     <p class="text-sm text-muted">{% if cycle %}Active cycle: <span class="font-bold text-ink">{{ cycle.session }}</span>{% else %}No active dues cycle{% endif %}</p>
   </div>
   <div class="flex flex-wrap gap-2">
+    <a href="{% url 'money:receipts' %}" class="btn-primary btn-sm">Review bank receipts{% if pending_receipt_count %} · {{ pending_receipt_count }}{% endif %}</a>
     <a href="{% url 'money:payments' %}" class="btn-outline btn-sm">All payments</a>
     <a href="{% url 'money:export' %}" class="btn-outline btn-sm">Export CSV</a>
     <form method="post" action="{% url 'money:remind' %}" onsubmit="return confirm('Email everyone who has not paid in the last 7 days?')">{% csrf_token %}<button type="submit" class="btn-primary btn-sm">Send reminders</button></form>

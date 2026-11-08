@@ -4,21 +4,21 @@
 
 /* ------------------------------------------------------------------
    Design tokens
-   A warm paper-and-forest palette, with brass as the accent.
+   Clean white surfaces, ink outlines and MSSN green accents.
    ------------------------------------------------------------------ */
 :root {
   color-scheme: light;
-  --paper: 250 247 240;
+  --paper: 255 255 255;
   --surface: 255 255 255;
-  --surface-2: 245 241 232;
-  --ink: 19 32 26;
-  --muted: 91 107 99;
-  --line: 226 219 205;
-  --brand: 14 75 58;
-  --brand-soft: 232 241 236;
+  --surface-2: 246 248 246;
+  --ink: 22 24 22;
+  --muted: 112 117 113;
+  --line: 218 222 219;
+  --brand: 0 105 42;
+  --brand-soft: 232 242 234;
   --on-brand: 255 255 255;
-  --gold: 176 132 38;
-  --gold-soft: 247 239 216;
+  --gold: 0 105 42;
+  --gold-soft: 232 242 234;
   --danger: 178 58 46;
   --success: 22 112 79;
   --shadow-color: 16 32 25;
@@ -172,11 +172,11 @@
 
   /* Surfaces ------------------------------------------------------ */
   .card {
-    @apply rounded-2xl border border-line bg-surface shadow-soft;
+    @apply rounded-2xl border border-[#3b3d3b] bg-surface shadow-soft;
   }
 
   .card-flat {
-    @apply rounded-2xl border border-line bg-surface;
+    @apply rounded-2xl border border-[#3b3d3b] bg-surface;
   }
 
   .tag {

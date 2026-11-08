@@ -2,12 +2,22 @@ import uuid
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 
 
 def generate_reference():
     return f"MSSN-{uuid.uuid4().hex[:12].upper()}"
+
+
+@deconstructible
+class PrivateReceiptStorage(FileSystemStorage):
+    """Store receipts outside MEDIA_ROOT; access them only through the finance view."""
+
+    def __init__(self):
+        super().__init__(location=settings.BASE_DIR / "private_uploads")
 
 
 class DuesCycle(models.Model):
@@ -46,6 +56,17 @@ class Payment(models.Model):
     gateway = models.CharField(max_length=30, default="paystack")
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
     gateway_reference = models.CharField(max_length=120, blank=True)
+    receipt = models.FileField(
+        upload_to="dues-receipts/%Y/%m/",
+        storage=PrivateReceiptStorage(),
+        blank=True,
+    )
+    review_note = models.CharField(max_length=300, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="reviewed_dues_payments",
+    )
     paid_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

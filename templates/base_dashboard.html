@@ -88,6 +88,10 @@
           <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20h18M5 20V10M10 20V4M15 20v-7M20 20V7" stroke-linecap="round"/></svg>
           Finance
         </a>
+        <a href="{% url 'money:receipts' %}" class="sidebar-link {% if request.resolver_match.url_name == 'receipts' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M14 3v5h5M9 13h6M9 17h6" stroke-linecap="round"/></svg>
+          Receipt verification
+        </a>
         {% endif %}
         {% if user.is_super_admin %}
         <a href="/django-admin/" class="sidebar-link">

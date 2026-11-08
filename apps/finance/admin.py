@@ -14,7 +14,7 @@ class PaymentAdmin(admin.ModelAdmin):
     list_display = ("student", "cycle", "amount", "status", "gateway", "paid_at")
     list_filter = ("status", "gateway", "cycle")
     search_fields = ("student__first_name", "student__last_name", "student__matric_no", "reference")
-    readonly_fields = ("reference", "created_at", "paid_at")
+    readonly_fields = ("reference", "created_at", "paid_at", "reviewed_at", "reviewed_by")
 
 
 @admin.register(ReminderLog)
