@@ -12,6 +12,8 @@ LEVEL_CHOICES = [
     ("700", "700 Level"),
 ]
 
+EXECUTIVE_ICON_CHOICES = [("male", "Male profile icon"), ("female", "Female profile icon")]
+
 
 class Faculty(models.Model):
     name = models.CharField(max_length=120, unique=True)
@@ -61,6 +63,18 @@ class Executive(models.Model):
     bio = models.TextField(blank=True, max_length=800)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
+    avatar_icon = models.CharField(
+        "fallback profile icon",
+        max_length=6,
+        choices=EXECUTIVE_ICON_CHOICES,
+        blank=True,
+        default="",
+        help_text="Shown when no executive photo is uploaded. Choose the matching illustration.",
+    )
+    department = models.ForeignKey(
+        "Department", on_delete=models.SET_NULL, null=True, blank=True, related_name="executives"
+    )
+    level = models.CharField(max_length=3, choices=LEVEL_CHOICES, blank=True)
     order = models.PositiveSmallIntegerField(default=0)
     is_current = models.BooleanField(default=True)
 
@@ -130,6 +144,19 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.subject} — {self.name}"
+
+
+class NewsletterSubscriber(models.Model):
+    name = models.CharField(max_length=120, blank=True)
+    email = models.EmailField(unique=True)
+    is_active = models.BooleanField(default=True)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-subscribed_at"]
+
+    def __str__(self):
+        return self.name or self.email
 
 
 def society_url():

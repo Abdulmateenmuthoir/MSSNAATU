@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Newsroom · {{ site_name }}{% endblock %}
+{% block title %}Articles · {{ site_name }}{% endblock %}
 {% block description %}News, editorials and stories from the Muslim Students' Society at AATU.{% endblock %}
 
 {% block content %}
@@ -9,8 +9,8 @@
     <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
       <div class="max-w-2xl">
         <p class="eyebrow">From the office</p>
-        <h1 class="mt-3 display-lg text-ink">The newsroom.</h1>
-        <p class="mt-4 lede">News, editorials and stories from the society — written by the Editorial Board and contributors across campus.</p>
+        <h1 class="mt-3 display-lg text-ink">Articles &amp; reflections.</h1>
+        <p class="mt-4 lede">News, reflections and stories from the society — written by the Editorial Board and contributors across campus.</p>
       </div>
       <form method="get" class="flex w-full max-w-md gap-2 lg:w-auto">
         {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}

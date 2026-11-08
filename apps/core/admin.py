@@ -1,6 +1,15 @@
 from django.contrib import admin
 
-from .models import Announcement, Committee, CommitteeMember, ContactMessage, Department, Executive, Faculty
+from .models import (
+    Announcement,
+    Committee,
+    CommitteeMember,
+    ContactMessage,
+    Department,
+    Executive,
+    Faculty,
+    NewsletterSubscriber,
+)
 
 
 @admin.register(Faculty)
@@ -23,9 +32,9 @@ class CommitteeMemberInline(admin.TabularInline):
 
 @admin.register(Executive)
 class ExecutiveAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "position", "session", "order", "is_current")
-    list_filter = ("session", "is_current")
-    search_fields = ("full_name", "position")
+    list_display = ("full_name", "position", "avatar_icon", "department", "level", "phone", "session", "is_current")
+    list_filter = ("session", "is_current", "avatar_icon", "level", "department__faculty")
+    search_fields = ("full_name", "position", "phone", "department__name")
 
 
 @admin.register(Committee)
@@ -46,3 +55,10 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ("subject", "name", "email", "created_at", "is_resolved")
     list_filter = ("is_resolved",)
     search_fields = ("name", "email", "subject", "message")
+
+
+@admin.register(NewsletterSubscriber)
+class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    list_display = ("email", "name", "is_active", "subscribed_at")
+    list_filter = ("is_active", "subscribed_at")
+    search_fields = ("email", "name")

@@ -1,7 +1,7 @@
 {% load static %}
-<footer class="relative mt-24 overflow-hidden bg-[#0a2c22] text-[#e9efe9]">
+<footer class="relative mt-24 overflow-hidden bg-[#0a2c22] text-[#e9efe9] dark:bg-[#111317]">
   <div class="pattern-rings absolute inset-0 opacity-60" aria-hidden="true"></div>
-  <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#123d30] blur-3xl" aria-hidden="true"></div>
+  <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#123d30] blur-3xl dark:bg-[#252930]" aria-hidden="true"></div>
 
   <div class="container-page relative py-16">
     <div class="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
@@ -31,7 +31,8 @@
           <li><a href="{% url 'core:executives' %}" class="transition hover:text-white">Executives</a></li>
           <li><a href="{% url 'core:committees' %}" class="transition hover:text-white">Standing committees</a></li>
           <li><a href="{% url 'events:list' %}" class="transition hover:text-white">Events &amp; programmes</a></li>
-          <li><a href="{% url 'blog:list' %}" class="transition hover:text-white">Newsroom</a></li>
+          <li><a href="{% url 'blog:list' %}" class="transition hover:text-white">Articles</a></li>
+          <li><a href="{% url 'core:home' %}#faqs" class="transition hover:text-white">FAQs</a></li>
         </ul>
       </div>
 

@@ -6,8 +6,8 @@
 {% block content %}
 
 <!-- Welcome -->
-<section class="relative overflow-hidden bg-[#f0f5ed]">
-  <div class="absolute -right-24 -top-32 h-[32rem] w-[32rem] rounded-full bg-[#dce9dc]" aria-hidden="true"></div>
+<section class="relative overflow-hidden bg-[#f0f5ed] dark:bg-[#15171b]">
+  <div class="absolute -right-24 -top-32 h-[32rem] w-[32rem] rounded-full bg-[#dce9dc] dark:bg-[#202328]" aria-hidden="true"></div>
   <div class="container-page relative py-14 sm:py-20 lg:py-24">
     <div class="grid items-center gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-16">
       <div class="animate-rise">
@@ -19,13 +19,13 @@
           <a href="{% url 'events:list' %}" class="btn-outline">Explore programmes</a>
         </div>
         <div class="mt-10 flex items-center gap-3 text-sm text-muted">
-          <span class="flex -space-x-2" aria-hidden="true"><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-brand text-[10px] font-bold text-white">M</span><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-[#d8b45a] text-[10px] font-bold text-ink">A</span><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-[#d7e4dc] text-[10px] font-bold text-brand">+</span></span>
+          <span class="flex -space-x-2" aria-hidden="true"><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-brand text-[10px] font-bold text-white dark:border-[#15171b]">M</span><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-[#d8b45a] text-[10px] font-bold text-ink dark:border-[#15171b]">A</span><span class="grid h-9 w-9 place-items-center rounded-full border-2 border-[#f0f5ed] bg-[#d7e4dc] text-[10px] font-bold text-brand dark:border-[#15171b]">+</span></span>
           <span>A campus community rooted in faith and service</span>
         </div>
       </div>
 
       <div class="relative mx-auto w-full max-w-[520px]">
-        <div class="relative overflow-hidden rounded-[2rem] bg-brand p-7 text-white shadow-lift sm:p-10">
+        <div class="relative overflow-hidden rounded-[2rem] bg-brand p-7 text-white shadow-lift dark:bg-[#24272d] dark:text-ink sm:p-10">
           <div class="pattern-stars absolute inset-0 opacity-20" aria-hidden="true"></div>
           <div class="relative flex min-h-[310px] flex-col justify-between sm:min-h-[360px]">
             <div class="flex items-start justify-between gap-4">
@@ -54,10 +54,10 @@
     </div>
 
     <div class="mt-14 grid grid-cols-2 gap-3 sm:mt-16 sm:grid-cols-4 sm:gap-4">
-      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.members|intcomma }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Active members</p></div>
-      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.faculties }}</p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Faculties</p></div>
-      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.events }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Programmes</p></div>
-      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4"><p class="font-display text-2xl font-semibold text-brand">{{ stats.questions }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Past questions</p></div>
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4 dark:border-line dark:bg-surface"><p class="font-display text-2xl font-semibold text-brand">{{ stats.members|intcomma }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Active members</p></div>
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4 dark:border-line dark:bg-surface"><p class="font-display text-2xl font-semibold text-brand">{{ stats.faculties }}</p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Faculties</p></div>
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4 dark:border-line dark:bg-surface"><p class="font-display text-2xl font-semibold text-brand">{{ stats.events }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Programmes</p></div>
+      <div class="rounded-2xl border border-[#dfe8dc] bg-white/75 px-5 py-4 dark:border-line dark:bg-surface"><p class="font-display text-2xl font-semibold text-brand">{{ stats.questions }}<span class="text-gold">+</span></p><p class="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Past questions</p></div>
     </div>
   </div>
 </section>
@@ -173,9 +173,9 @@
 
 <!-- Member portal feature -->
 <section class="container-page py-20 sm:py-24">
-  <div class="relative overflow-hidden rounded-4xl bg-[#0a2c22] px-6 py-12 text-white sm:px-10 lg:px-14 lg:py-16">
+  <div class="relative overflow-hidden rounded-4xl bg-[#0a2c22] px-6 py-12 text-white dark:bg-[#17191d] sm:px-10 lg:px-14 lg:py-16">
     <div class="pattern-rings absolute inset-0 opacity-60" aria-hidden="true"></div>
-    <div class="absolute -right-20 top-0 h-72 w-72 rounded-full bg-[#164b3b] blur-3xl" aria-hidden="true"></div>
+    <div class="absolute -right-20 top-0 h-72 w-72 rounded-full bg-[#164b3b] blur-3xl dark:bg-[#252930]" aria-hidden="true"></div>
     <div class="relative grid items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
       <div>
         <p class="eyebrow !text-[#d8b45a]">For members</p>
@@ -202,7 +202,7 @@
       </div>
 
       <div class="relative mx-auto w-full max-w-sm lg:ml-auto">
-        <div class="rounded-3xl border border-white/10 bg-[#0f382b] p-5 shadow-2xl">
+        <div class="rounded-3xl border border-white/10 bg-[#0f382b] p-5 shadow-2xl dark:border-line dark:bg-[#22252a]">
           <div class="flex items-center justify-between border-b border-white/10 pb-4">
             <div class="flex items-center gap-2.5">
               <span class="grid h-9 w-9 place-items-center rounded-full bg-[#d8b45a] text-[11px] font-bold text-[#0a2c22]">SA</span>
@@ -239,14 +239,14 @@
   </div>
 </section>
 
-<!-- Newsroom -->
+<!-- Articles -->
 <section class="container-page pb-20 sm:pb-24">
   <div class="flex flex-wrap items-end justify-between gap-5">
     <div>
       <p class="eyebrow">From the office</p>
-      <h2 class="mt-3 display-md text-ink">Newsroom</h2>
+      <h2 class="mt-3 display-md text-ink">Articles</h2>
     </div>
-    <a href="{% url 'blog:list' %}" class="link-underline text-sm">All stories <span aria-hidden="true">→</span></a>
+    <a href="{% url 'blog:list' %}" class="link-underline text-sm">All articles <span aria-hidden="true">→</span></a>
   </div>
 
   {% if latest_posts %}
@@ -304,7 +304,7 @@
             {% else %}
               <div class="pattern-stars absolute inset-0 opacity-50"></div>
               <div class="absolute inset-0 grid place-items-center">
-                <span class="grid h-14 w-14 place-items-center rounded-full bg-brand text-lg font-bold text-onbrand">{{ person.initials }}</span>
+                {% if person.avatar_icon == "female" %}<img src="{% static 'img/executive-female.png' %}" alt="Illustration of a woman" class="h-full w-full object-contain">{% elif person.avatar_icon == "male" %}<img src="{% static 'img/executive-male.png' %}" alt="Illustration of a man" class="h-full w-full object-contain">{% else %}<span class="grid h-14 w-14 place-items-center rounded-full bg-brand text-lg font-bold text-onbrand">{{ person.initials }}</span>{% endif %}
               </div>
             {% endif %}
           </div>
@@ -316,6 +316,9 @@
   </div>
 </section>
 {% endif %}
+
+{% include "partials/newsletter.html" %}
+{% include "partials/faq.html" %}
 
 <!-- CTA -->
 <section class="container-page py-20 sm:py-24">

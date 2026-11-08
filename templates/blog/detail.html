@@ -11,7 +11,7 @@
     <div class="container-page py-10 sm:py-14">
       <nav class="flex items-center gap-2 text-[11px] font-semibold text-muted" aria-label="Breadcrumb">
         <a href="{% url 'core:home' %}" class="hover:text-ink">Home</a><span aria-hidden="true">/</span>
-        <a href="{% url 'blog:list' %}" class="hover:text-ink">Newsroom</a><span aria-hidden="true">/</span>
+        <a href="{% url 'blog:list' %}" class="hover:text-ink">Articles</a><span aria-hidden="true">/</span>
         <span class="truncate text-ink">{{ post.title }}</span>
       </nav>
 
@@ -78,7 +78,7 @@
             </form>
           {% else %}
             <div class="card mt-5 flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
-              <div><p class="text-sm font-bold text-ink">Join the conversation</p><p class="mt-1 text-xs text-muted">Only signed-in members can comment. Reading is open to everyone.</p></div>
+              <div><p class="text-sm font-bold text-ink">Join the conversation</p><p class="mt-1 text-xs text-muted">Sign in with your student account to comment. Reading is open to everyone.</p></div>
               <a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" class="btn-primary btn-sm shrink-0">Sign in to comment</a>
             </div>
           {% endif %}

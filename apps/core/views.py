@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from apps.accounts.models import ROLE_MEMBER, Student
@@ -11,8 +12,8 @@ from apps.events.models import Event, Registration
 from apps.finance.models import DuesCycle, Payment
 from apps.library.models import PastQuestion
 
-from .forms import ContactForm
-from .models import Announcement, Committee, Executive, Faculty
+from .forms import ContactForm, NewsletterForm
+from .models import Announcement, Committee, Executive, Faculty, NewsletterSubscriber
 
 
 def home(request):
@@ -21,7 +22,7 @@ def home(request):
         Event.objects.filter(is_published=True, starts_at__gte=now).order_by("starts_at")[:3]
     )
     latest_posts = Post.objects.filter(is_published=True, published_at__lte=now)[:3]
-    current_executives = Executive.objects.filter(session="1448/1449 AH")[:6]
+    current_executives = Executive.objects.filter(session="1448/1449 AH").select_related("department")[:6]
     stats = {
         "members": Student.objects.filter(is_active=True).count(),
         "events": Event.objects.filter(is_published=True).count(),
@@ -54,7 +55,7 @@ def executives(request):
         Executive.objects.values_list("session", flat=True).distinct().order_by("-session")
     )
     selected = request.GET.get("session") or (sessions[0] if sessions else "1448/1449 AH")
-    people = Executive.objects.filter(session=selected)
+    people = Executive.objects.filter(session=selected).select_related("department")
     return render(
         request,
         "core/executives.html",
@@ -82,6 +83,29 @@ def contact(request):
         messages.success(request, "Your message has reached the PRO office. We will get back to you shortly.")
         return redirect("core:contact")
     return render(request, "core/contact.html", {"form": form})
+
+
+def newsletter_subscribe(request):
+    if request.method != "POST":
+        return redirect("core:home")
+    form = NewsletterForm(request.POST)
+    if not form.is_valid():
+        messages.error(request, "Please enter a valid email address to subscribe.")
+        return redirect(f"{reverse('core:home')}#newsletter")
+
+    email = form.cleaned_data["email"].strip().lower()
+    name = form.cleaned_data["name"].strip()
+    subscriber, created = NewsletterSubscriber.objects.get_or_create(
+        email=email,
+        defaults={"name": name, "is_active": True},
+    )
+    if not created and not subscriber.is_active:
+        subscriber.is_active = True
+        if name:
+            subscriber.name = name
+        subscriber.save(update_fields=["name", "is_active"])
+    messages.success(request, "You’re subscribed to useful MSSN AATU updates.")
+    return redirect(f"{reverse('core:home')}#newsletter")
 
 
 @login_required

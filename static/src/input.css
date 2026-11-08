@@ -26,19 +26,19 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --paper: 10 18 15;
-  --surface: 17 28 23;
-  --surface-2: 22 35 29;
-  --ink: 240 238 229;
-  --muted: 157 170 162;
-  --line: 40 56 48;
-  --brand: 91 190 152;
-  --brand-soft: 20 44 34;
-  --on-brand: 7 24 17;
-  --gold: 220 177 74;
-  --gold-soft: 48 40 20;
+  --paper: 15 16 19;
+  --surface: 24 26 30;
+  --surface-2: 33 36 42;
+  --ink: 239 240 243;
+  --muted: 163 168 177;
+  --line: 54 58 66;
+  --brand: 112 174 139;
+  --brand-soft: 31 48 39;
+  --on-brand: 12 22 16;
+  --gold: 222 184 101;
+  --gold-soft: 56 48 31;
   --danger: 240 128 116;
-  --success: 92 200 157;
+  --success: 100 190 139;
   --shadow-color: 0 0 0;
 }
 
@@ -76,6 +76,27 @@
   input, textarea, select, button {
     font: inherit;
   }
+}
+
+/* In dark mode, keep oversized feature panels charcoal instead of forest
+   green. Green remains the accent color for controls and links. */
+[data-theme="dark"] [class*="bg-[#0a2c22]"],
+[data-theme="dark"] [class*="bg-[#0e3b2e]"],
+[data-theme="dark"] [class*="bg-[#0f382b]"],
+[data-theme="dark"] [class*="bg-[#124936]"],
+[data-theme="dark"] [class*="bg-[#14503c]"] {
+  background-color: #17191d !important;
+}
+
+[data-theme="dark"] [class*="from-[#124936]"],
+[data-theme="dark"] [class*="from-[#14503c]"] {
+  --tw-gradient-from: #24272d var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(36 39 45 / 0) var(--tw-gradient-to-position) !important;
+}
+
+[data-theme="dark"] [class*="to-[#0a2c22]"],
+[data-theme="dark"] [class*="to-[#08251c]"] {
+  --tw-gradient-to: #17191d var(--tw-gradient-to-position) !important;
 }
 
 @layer components {

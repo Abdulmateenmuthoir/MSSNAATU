@@ -32,7 +32,7 @@
     });
     var meta = doc.querySelector('meta[name="theme-color"]:not([media])');
     if (meta) {
-      meta.setAttribute("content", theme === "dark" ? "#0a120f" : "#faf7f0");
+      meta.setAttribute("content", theme === "dark" ? "#0f1013" : "#faf7f0");
     }
   }
 
