@@ -9,7 +9,6 @@ created, and nothing is deleted.
 import io
 import os
 from datetime import timedelta
-from decimal import Decimal
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -37,7 +36,6 @@ from apps.core.models import (
     Faculty,
 )
 from apps.events.models import Event, Registration
-from apps.finance.models import DuesCycle, Payment
 from apps.library.models import PastQuestion
 
 SESSION = "1448/1449 AH"
@@ -731,50 +729,6 @@ class Command(BaseCommand):
             question.file.save(relative.split("/")[-1], ContentFile(payload), save=False)
             question.save()
         self.stdout.write(f"Past questions: {PastQuestion.objects.count()}")
-
-        #--------------------------------------------------------------
-        # Dues
-        #--------------------------------------------------------------
-        cycle, _ = DuesCycle.objects.get_or_create(
-            session=SESSION,
-            defaults={
-                "amount": Decimal("2000.00"),
-                "due_date": now.date() + timedelta(days=60),
-                "note": "Dues support halaqah, welfare, academic resources and the work of the society.",
-                "is_active": True,
-            },
-        )
-        if not cycle.is_active:
-            cycle.is_active = True
-            cycle.save(update_fields=["is_active"])
-
-        payment_count = 0
-        for index, student in enumerate(demo_members[:11]):
-            payment, created = Payment.objects.get_or_create(
-                student=student,
-                cycle=cycle,
-                defaults={
-                    "amount": cycle.amount,
-                    "status": Payment.SUCCESS,
-                    "gateway": "paystack",
-                    "gateway_reference": f"DEMO-{index:04d}",
-                    "paid_at": now - timedelta(days=index + 1),
-                },
-            )
-            if created:
-                payment_count += 1
-        # A couple of pending and failed attempts for realism
-        if demo_members:
-            Payment.objects.get_or_create(
-                student=demo_members[-1],
-                cycle=cycle,
-                defaults={"amount": cycle.amount, "status": Payment.PENDING},
-            )
-            Payment.objects.get_or_create(
-                student=demo_members[-2],
-                cycle=cycle,
-                defaults={"amount": cycle.amount, "status": Payment.FAILED},
-            )
 
         self.stdout.write("")
         self.stdout.write(self.style.SUCCESS("Demo data ready."))

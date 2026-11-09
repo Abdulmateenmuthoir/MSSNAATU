@@ -22,7 +22,7 @@ def home(request):
         Event.objects.filter(is_published=True, starts_at__gte=now).order_by("starts_at")[:3]
     )
     latest_posts = Post.objects.filter(is_published=True, published_at__lte=now)[:3]
-    current_executives = Executive.objects.filter(session="1448/1449 AH").select_related("department")[:6]
+    current_executives = Executive.objects.filter(is_current=True).select_related("department")[:6]
     stats = {
         "members": Student.objects.filter(is_active=True).count(),
         "events": Event.objects.filter(is_published=True).count(),
@@ -53,6 +53,13 @@ def about(request):
 def executives(request):
     sessions = list(
         Executive.objects.values_list("session", flat=True).distinct().order_by("-session")
+    )
+    selected = request.GET.get("session") or (sessions[0] if sessions else "1448/1449 AH")
+    people = Executive.objects.filter(session=selected).select_related("department")
+    return render(
+        request,
+        "core/executives.html",
+        {"sessions": sessions, "selected_session": selected, "executives": people},
     )
 
 

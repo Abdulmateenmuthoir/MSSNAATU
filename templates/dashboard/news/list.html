@@ -11,10 +11,24 @@
     <a href="?status=drafts" class="badge {% if status == 'drafts' %}bg-brand text-onbrand{% else %}border border-line bg-surface text-muted{% endif %} px-3.5 py-2 text-[10px]">Drafts</a>
   </div>
   <div class="flex flex-wrap gap-2">
+    <a href="{% url 'newsroom:subscribers' %}" class="btn-outline btn-sm">Manage subscribers</a>
+    <a href="{% url 'newsroom:newsletters' %}" class="btn-outline btn-sm">Newsletters</a>
     <a href="{% url 'newsroom:comments' %}" class="btn-outline btn-sm">Moderate comments</a>
     <a href="{% url 'newsroom:create' %}" class="btn-primary btn-sm">New article</a>
   </div>
 </div>
+
+<section class="mt-6 rounded-2xl border border-line bg-surface p-5">
+  <div class="flex flex-wrap items-center justify-between gap-3"><div><p class="eyebrow">Email updates</p><h2 class="mt-1 font-display text-lg font-semibold text-ink">News email delivery</h2></div><span class="text-xs text-muted">To active subscribers and active student accounts</span></div>
+  <div class="mt-4 space-y-2">
+    {% for campaign in campaigns %}<div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line px-4 py-3"><div><p class="text-sm font-semibold text-ink">{{ campaign.post.title }}</p><p class="mt-1 text-xs text-muted">{{ campaign.get_status_display }}{% if campaign.recipient_count %} · {{ campaign.recipient_count }} recipients{% endif %}{% if campaign.last_error %} · {{ campaign.last_error }}{% endif %}</p></div>{% if campaign.status != 'sent' %}<form method="post" action="{% url 'newsroom:campaign_retry' campaign.pk %}">{% csrf_token %}<button class="btn-outline btn-sm" type="submit">Try sending</button></form>{% endif %}</div>{% empty %}<p class="text-xs text-muted">Newly published articles will appear here.</p>{% endfor %}
+  </div>
+</section>
+
+<section class="mt-5 rounded-2xl border border-line bg-surface p-5">
+  <div class="flex flex-wrap items-center justify-between gap-3"><div><p class="eyebrow">Newsletter campaigns</p><h2 class="mt-1 font-display text-lg font-semibold text-ink">Member newsletter delivery</h2></div><a href="{% url 'newsroom:newsletters' %}" class="btn-outline btn-sm">Open newsletter editor</a></div>
+  <div class="mt-4 space-y-2">{% for campaign in newsletters %}<div class="rounded-xl border border-line px-4 py-3"><p class="text-sm font-semibold text-ink">{{ campaign.title }}</p><p class="mt-1 text-xs text-muted">{{ campaign.get_status_display }}{% if campaign.recipient_count %} · {{ campaign.recipient_count }} recipients{% endif %}</p></div>{% empty %}<p class="text-xs text-muted">No newsletters drafted yet.</p>{% endfor %}</div>
+</section>
 
 <div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
   <div class="overflow-x-auto">

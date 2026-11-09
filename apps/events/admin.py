@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Event, Registration
+from .models import Event, Program, Registration
+
+
+@admin.register(Program)
+class ProgramAdmin(admin.ModelAdmin):
+    list_display = ("name", "frequency", "coordinator", "is_active", "order")
+    list_filter = ("is_active", "frequency")
+    search_fields = ("name", "summary", "description", "coordinator")
 
 
 class RegistrationInline(admin.TabularInline):

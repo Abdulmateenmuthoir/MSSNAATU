@@ -1,5 +1,4 @@
 import csv
-from datetime import timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -13,7 +12,7 @@ from django.views.decorators.http import require_POST
 
 from apps.accounts.decorators import role_required
 from apps.accounts.emails import send_dues_reminder, send_payment_receipt
-from apps.accounts.models import ROLE_FINANCE, Student
+from apps.accounts.models import ROLE_FINANCE, ROLE_MEMBER, Student
 from apps.core.models import Department, LEVEL_CHOICES
 
 from .forms import BankReceiptForm, DuesCycleForm
@@ -30,7 +29,7 @@ def _paid_student_ids(cycle):
 
 
 def _unpaid_students(cycle):
-    return Student.objects.filter(is_active=True).exclude(id__in=_paid_student_ids(cycle))
+    return Student.objects.filter(is_active=True, role=ROLE_MEMBER).exclude(id__in=_paid_student_ids(cycle))
 
 
 @login_required
@@ -44,7 +43,7 @@ def dues_home(request):
             request.user.payments.filter(cycle=cycle, status=Payment.SUCCESS).order_by("-paid_at").first()
         )
         pending_payment = request.user.payments.filter(
-            cycle=cycle, gateway="bank_transfer", status=Payment.PENDING, receipt__gt=""
+            cycle=cycle, gateway="bank_transfer", status=Payment.PENDING
         ).order_by("-created_at").first()
         history = request.user.payments.select_related("cycle").order_by("-created_at")
     return render(
@@ -54,6 +53,9 @@ def dues_home(request):
             "cycle": cycle,
             "payment": payment,
             "pending_payment": pending_payment,
+            "replaceable_payment": request.user.payments.filter(
+                cycle=cycle, gateway="bank_transfer", status__in=[Payment.PENDING, Payment.FAILED]
+            ).order_by("-created_at").first(),
             "history": history,
             "paystack_ready": is_configured(),
             "bank_details": {
@@ -74,9 +76,6 @@ def submit_bank_receipt(request):
     if not cycle:
         messages.error(request, "No active dues cycle has been set yet.")
         return redirect("finance:dues")
-    if not all((settings.DUES_BANK_NAME, settings.DUES_ACCOUNT_NAME, settings.DUES_ACCOUNT_NUMBER)):
-        messages.error(request, "Bank transfer details are not configured yet. Please contact the Finance Officer.")
-        return redirect("finance:dues")
     if request.user.payments.filter(cycle=cycle, status=Payment.SUCCESS).exists():
         messages.info(request, "Your dues for this session are already paid.")
         return redirect("finance:dues")
@@ -87,13 +86,14 @@ def submit_bank_receipt(request):
             messages.error(request, error)
         return redirect("finance:dues")
     existing = request.user.payments.filter(
-        cycle=cycle, gateway="bank_transfer", status=Payment.PENDING
+        cycle=cycle, gateway="bank_transfer", status__in=[Payment.PENDING, Payment.FAILED]
     ).order_by("-created_at").first()
     if existing:
-        if existing.receipt:
-            messages.info(request, "Your receipt is already pending review. Finance will contact you after checking the transfer.")
-            return redirect("finance:dues")
         payment = existing
+        payment.status = Payment.PENDING
+        payment.review_note = ""
+        payment.reviewed_at = None
+        payment.reviewed_by = None
     else:
         payment = Payment(student=request.user, cycle=cycle, amount=cycle.amount, gateway="bank_transfer")
     payment.receipt = form.cleaned_data["receipt"]
@@ -113,33 +113,16 @@ def initialize_payment(request):
         messages.info(request, "Your dues for this session are already paid.")
         return redirect("finance:dues")
 
-    pending = request.user.payments.filter(cycle=cycle, status=Payment.PENDING).order_by("-created_at").first()
+    if not is_configured():
+        messages.error(request, "Online payment is not configured. Please use the bank transfer option below or contact the Finance Officer.")
+        return redirect("finance:dues")
+    pending = request.user.payments.filter(cycle=cycle, status=Payment.PENDING, gateway="paystack").order_by("-created_at").first()
     payment = pending or Payment.objects.create(student=request.user, cycle=cycle, amount=cycle.amount)
-
-    if is_configured():
-        url, error = initialize_transaction(payment)
-        if url:
-            return redirect(url)
-        messages.error(request, error or "The payment gateway is unavailable right now.")
-        return redirect("finance:dues")
-
-    if settings.DEBUG:
-        return redirect("finance:demo_checkout", reference=str(payment.reference))
-    messages.error(request, "Online payment is not configured. Please contact the Finance Officer.")
+    url, error = initialize_transaction(payment)
+    if url:
+        return redirect(url)
+    messages.error(request, error or "The payment gateway is unavailable right now.")
     return redirect("finance:dues")
-
-
-@login_required
-def demo_checkout(request, reference):
-    if not settings.DEBUG:
-        return redirect("finance:dues")
-    payment = get_object_or_404(Payment, reference=reference, student=request.user)
-    if request.method == "POST":
-        payment.mark_paid("DEMO")
-        send_payment_receipt(payment)
-        messages.success(request, "Payment recorded. Your receipt is ready.")
-        return redirect("finance:receipt", reference=payment.reference)
-    return render(request, "finance/demo_checkout.html", {"payment": payment})
 
 
 def callback(request):
@@ -275,17 +258,14 @@ def send_reminders(request):
     if not cycle:
         messages.error(request, "Set an active dues cycle first.")
         return redirect("money:overview")
-    overdue_ids = ReminderLog.objects.filter(
-        cycle=cycle, sent_at__gte=timezone.now() - timedelta(days=7)
-    ).values_list("student_id", flat=True)
-    targets = _unpaid_students(cycle).exclude(id__in=overdue_ids)
+    targets = _unpaid_students(cycle)
     sent = 0
     for student in targets:
         pay_url = f"{settings.SITE_URL}{reverse('finance:dues')}"
         if send_dues_reminder(student, cycle, pay_url):
             ReminderLog.objects.create(cycle=cycle, student=student)
             sent += 1
-    messages.success(request, f"Reminder sent to {sent} member(s).")
+    messages.success(request, f"Dues reminder sent to {sent} unpaid member(s).")
     return redirect("money:overview")
 
 

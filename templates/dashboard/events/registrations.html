@@ -6,13 +6,13 @@
 {% block dashboard_content %}
 <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
   <div>
-    <a href="{% url 'programmes:list' %}" class="text-xs font-bold text-muted hover:text-ink">← All programmes</a>
+    <a href="{% url 'eventmanager:list' %}" class="text-xs font-bold text-muted hover:text-ink">← All events</a>
     <h2 class="mt-2 font-display text-2xl font-semibold text-ink">{{ event.title }}</h2>
     <p class="mt-1 text-sm text-muted">{{ event.starts_at|date:"l, j F Y · g:i A" }} · {{ event.venue }}</p>
   </div>
   <div class="flex flex-wrap gap-2">
-    <a href="{% url 'programmes:registrations_export' event.pk %}" class="btn-outline btn-sm">Export CSV</a>
-    <form method="post" action="{% url 'programmes:remind' event.pk %}">{% csrf_token %}<button type="submit" class="btn-primary btn-sm">Email reminder</button></form>
+    <a href="{% url 'eventmanager:registrations_export' event.pk %}" class="btn-outline btn-sm">Export CSV</a>
+    <form method="post" action="{% url 'eventmanager:remind' event.pk %}">{% csrf_token %}<button type="submit" class="btn-primary btn-sm">Email reminder</button></form>
   </div>
 </div>
 
@@ -38,7 +38,7 @@
     </select>
   </div>
   <button type="submit" class="btn-primary btn-sm !py-3">Filter</button>
-  {% if level or request.GET.department %}<a href="{% url 'programmes:registrations' event.pk %}" class="btn-ghost btn-sm !py-3">Clear</a>{% endif %}
+  {% if level or request.GET.department %}<a href="{% url 'eventmanager:registrations' event.pk %}" class="btn-ghost btn-sm !py-3">Clear</a>{% endif %}
 </form>
 
 <div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">

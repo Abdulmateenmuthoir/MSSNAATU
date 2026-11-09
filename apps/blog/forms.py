@@ -1,6 +1,22 @@
 from django import forms
 
-from .models import Comment, Post
+from .models import Comment, NewsletterCampaign, Post
+
+
+class NewsletterCampaignForm(forms.ModelForm):
+    class Meta:
+        model = NewsletterCampaign
+        fields = ["title", "preview", "content"]
+        widgets = {
+            "title": forms.TextInput(attrs={"placeholder": "Newsletter subject"}),
+            "preview": forms.Textarea(attrs={"rows": 2, "placeholder": "A short inbox preview (optional)"}),
+            "content": forms.Textarea(attrs={"rows": 16, "placeholder": "Write the newsletter for members and subscribers…"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "field-input")
 
 
 class PostForm(forms.ModelForm):

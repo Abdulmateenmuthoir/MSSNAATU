@@ -1,0 +1,11 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Subscribers · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Newsroom{% endblock %}
+{% block page_title %}Newsletter subscribers{% endblock %}
+{% block dashboard_content %}
+<div class="flex flex-wrap items-center justify-between gap-3"><p class="text-sm text-muted">Manage newsletter opt-ins. Active student accounts also receive new article announcements.</p><a href="{% url 'newsroom:list' %}" class="btn-outline btn-sm">Back to newsroom</a></div>
+<form method="get" class="mt-5 flex gap-2"><input name="q" value="{{ query }}" type="search" placeholder="Search by email" class="field-input max-w-sm"><button class="btn-primary btn-sm">Search</button></form>
+<div class="mt-5 overflow-hidden rounded-2xl border border-line bg-surface"><div class="overflow-x-auto"><table class="data-table min-w-[600px]"><thead><tr><th>Name</th><th>Email</th><th>Subscribed</th><th>Status</th><th></th></tr></thead><tbody>
+{% for subscriber in subscribers %}<tr><td class="text-sm font-semibold text-ink">{{ subscriber.name|default:"—" }}</td><td class="text-sm text-muted">{{ subscriber.email }}</td><td class="text-xs text-muted">{{ subscriber.subscribed_at|date:"j M Y" }}</td><td>{% if subscriber.is_active %}<span class="badge-green">Active</span>{% else %}<span class="badge-neutral">Unsubscribed</span>{% endif %}</td><td><form method="post" action="{% url 'newsroom:subscriber_toggle' subscriber.pk %}">{% csrf_token %}<button class="text-xs font-bold text-brand">{% if subscriber.is_active %}Unsubscribe{% else %}Reactivate{% endif %}</button></form></td></tr>{% empty %}<tr><td colspan="5" class="!py-10 text-center text-sm text-muted">No subscribers found.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

@@ -1,11 +1,6 @@
 {% load static %}
 <a href="{% url 'core:home' %}" class="group flex items-center gap-3">
-  <span class="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand text-onbrand shadow-soft transition duration-300 group-hover:rotate-45">
-    <svg class="h-[22px] w-[22px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 2.6l2.3 6.1 6.1 2.3-6.1 2.3L12 19.4l-2.3-6.1L3.6 11l6.1-2.3L12 2.6z" fill="currentColor"/>
-      <circle cx="12" cy="11" r="2.1" fill="rgb(var(--gold))"/>
-    </svg>
-  </span>
+  <img src="{% static 'img/favicon.ico' %}" alt="MSSN AATU emblem" class="h-10 w-10 shrink-0 rounded-xl object-contain shadow-soft transition duration-300 group-hover:scale-105">
   <span class="leading-none">
     <span class="block font-display text-[19px] font-semibold tracking-tight text-ink">MSSN <span class="text-gold">AATU</span></span>
     <span class="mt-1 block text-[8.5px] font-bold uppercase tracking-[0.17em] text-muted">Abiola Ajimobi Technical University</span>

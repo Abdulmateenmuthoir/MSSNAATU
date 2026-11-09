@@ -1,0 +1,11 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Newsletters · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Content{% endblock %}
+{% block page_title %}Newsletters{% endblock %}
+{% block dashboard_content %}
+<div class="flex flex-wrap items-center justify-between gap-3"><p class="text-sm text-muted">Write a newsletter and send it to active members and newsletter subscribers through Brevo.</p><a href="{% url 'newsroom:newsletter_create' %}" class="btn-primary btn-sm">Write newsletter</a></div>
+<div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface"><div class="overflow-x-auto"><table class="data-table min-w-[720px]"><thead><tr><th>Newsletter</th><th>Status</th><th>Recipients</th><th>Created</th><th class="text-right">Actions</th></tr></thead><tbody>
+{% for campaign in campaigns %}<tr><td><p class="font-semibold text-ink">{{ campaign.title }}</p><p class="text-xs text-muted">{{ campaign.preview }}</p></td><td>{{ campaign.get_status_display }}{% if campaign.last_error %}<p class="text-xs text-danger">{{ campaign.last_error }}</p>{% endif %}</td><td>{{ campaign.recipient_count }}</td><td>{{ campaign.created_at|date:"j M Y" }}</td><td><div class="flex justify-end gap-3">{% if campaign.status != 'sent' %}<a href="{% url 'newsroom:newsletter_edit' campaign.pk %}" class="text-xs font-bold text-brand">Edit</a><form method="post" action="{% url 'newsroom:newsletter_send' campaign.pk %}" onsubmit="return confirm('Send this newsletter to every active member and subscriber?')">{% csrf_token %}<button class="text-xs font-bold text-brand" type="submit">{% if campaign.status == 'failed' %}Retry send{% else %}Send now{% endif %}</button></form>{% endif %}</div></td></tr>
+{% empty %}<tr><td colspan="5" class="!py-12 text-center text-sm text-muted">No newsletters yet. Write one to get started.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

@@ -2,7 +2,7 @@ from django.urls import path
 
 from . import views
 
-app_name = "programmes"
+app_name = "eventmanager"
 
 urlpatterns = [
     path("", views.manage_list, name="list"),

@@ -1,12 +1,12 @@
 {% extends "base_dashboard.html" %}
-{% block title %}{% if event %}Edit programme{% else %}New programme{% endif %} · {{ site_name }}{% endblock %}
-{% block page_eyebrow %}Programmes{% endblock %}
-{% block page_title %}{% if event %}Edit programme{% else %}New programme{% endif %}{% endblock %}
+{% block title %}{% if event %}Edit event{% else %}New event{% endif %} · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Events{% endblock %}
+{% block page_title %}{% if event %}Edit event{% else %}New event{% endif %}{% endblock %}
 
 {% block dashboard_content %}
 <div class="grid gap-6 xl:grid-cols-[1.5fr_0.7fr]">
   <div>
-    <a href="{% url 'programmes:list' %}" class="text-xs font-bold text-muted hover:text-ink">← All programmes</a>
+    <a href="{% url 'eventmanager:list' %}" class="text-xs font-bold text-muted hover:text-ink">← All events</a>
     <form method="post" enctype="multipart/form-data" class="card mt-4 p-6 sm:p-8" novalidate>
       {% csrf_token %}
       {% if form.non_field_errors %}<div class="form-alert mb-5">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
@@ -27,8 +27,8 @@
       <div class="mt-5">{% include "partials/checkbox.html" with field=form.is_published %}</div>
 
       <div class="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-        <a href="{% url 'programmes:list' %}" class="btn-ghost btn-sm">Cancel</a>
-        <button type="submit" class="btn-primary btn-sm">{% if event %}Save changes{% else %}Create programme{% endif %}</button>
+        <a href="{% url 'eventmanager:list' %}" class="btn-ghost btn-sm">Cancel</a>
+        <button type="submit" class="btn-primary btn-sm">{% if event %}Save changes{% else %}Create event{% endif %}</button>
       </div>
     </form>
   </div>
@@ -48,10 +48,10 @@
     </section>
     <section class="rounded-2xl border border-gold/25 bg-goldsoft/50 p-5">
       <p class="text-[11px] font-bold text-ink">Reminders</p>
-      <p class="mt-1 text-[11px] leading-5 text-muted">After publishing, open the registrations page to email every registrant a reminder.</p>
+      <p class="mt-1 text-[11px] leading-5 text-muted">Events have a specific date and time. After publishing, you can email reminders to registered attendees.</p>
     </section>
     {% if event %}
-    <a href="{{ event.get_absolute_url }}" class="btn-outline btn-sm w-full">View public page</a>
+    <a href="{{ event.get_absolute_url }}" class="btn-outline btn-sm w-full">View public event</a>
     {% endif %}
   </aside>
 </div>

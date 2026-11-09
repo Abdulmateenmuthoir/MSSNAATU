@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import reverse
 
 from .models import DuesCycle, Payment
@@ -37,29 +37,6 @@ class DuesTests(TestCase):
     def test_dues_page_requires_login(self):
         response = self.client.get(reverse("finance:dues"))
         self.assertEqual(response.status_code, 302)
-
-    @override_settings(DEBUG=True)
-    def test_demo_checkout_records_payment_and_issues_receipt(self):
-        self.client.force_login(self.student)
-        response = self.client.post(reverse("finance:pay"))
-        payment = Payment.objects.get(student=self.student, cycle=self.cycle)
-        self.assertRedirects(
-            response, reverse("finance:demo_checkout", args=[payment.reference])
-        )
-
-        response = self.client.post(
-            reverse("finance:demo_checkout", args=[payment.reference])
-        )
-        payment.refresh_from_db()
-        self.assertEqual(payment.status, Payment.SUCCESS)
-        self.assertIsNotNone(payment.paid_at)
-        self.assertRedirects(
-            response, reverse("finance:receipt", args=[payment.reference])
-        )
-        self.assertEqual(
-            self.client.get(reverse("finance:receipt", args=[payment.reference])).status_code,
-            200,
-        )
 
     def test_another_member_cannot_open_a_receipt(self):
         payment = Payment.objects.create(

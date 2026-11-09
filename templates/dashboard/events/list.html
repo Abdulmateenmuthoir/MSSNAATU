@@ -1,18 +1,18 @@
 {% extends "base_dashboard.html" %}
-{% block title %}Programmes · {{ site_name }}{% endblock %}
-{% block page_eyebrow %}Programmes{% endblock %}
+{% block title %}Events · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Events{% endblock %}
 {% block page_title %}Events manager{% endblock %}
 
 {% block dashboard_content %}
 <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-  <p class="text-sm text-muted">{{ events|length }} programme{{ events|length|pluralize }} on record</p>
-  <a href="{% url 'programmes:create' %}" class="btn-primary btn-sm self-start">New programme</a>
+  <p class="text-sm text-muted">{{ events|length }} dated event{{ events|length|pluralize }} on record</p>
+  <a href="{% url 'eventmanager:create' %}" class="btn-primary btn-sm self-start">New event</a>
 </div>
 
 <div class="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
   <div class="overflow-x-auto">
     <table class="data-table min-w-[900px]">
-      <thead><tr><th>Programme</th><th>Date</th><th>Eligibility</th><th>Registered</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
+      <thead><tr><th>Event</th><th>Date</th><th>Eligibility</th><th>Registered</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
       <tbody>
         {% for event in events %}
           <tr>
@@ -26,14 +26,14 @@
             <td>{% if event.is_past %}<span class="badge-neutral">Past</span>{% elif event.is_published %}<span class="badge-green">Published</span>{% else %}<span class="badge-gold">Draft</span>{% endif %}</td>
             <td>
               <div class="flex items-center justify-end gap-2">
-                <a href="{% url 'programmes:registrations' event.pk %}" class="text-[11px] font-bold text-brand hover:text-ink">Registrations</a>
-                <a href="{% url 'programmes:edit' event.pk %}" class="text-[11px] font-bold text-muted hover:text-ink">Edit</a>
-                <form method="post" action="{% url 'programmes:delete' event.pk %}" onsubmit="return confirm('Delete this programme and all its registrations?')">{% csrf_token %}<button type="submit" class="text-[11px] font-bold text-danger hover:text-ink">Delete</button></form>
+                <a href="{% url 'eventmanager:registrations' event.pk %}" class="text-[11px] font-bold text-brand hover:text-ink">Registrations</a>
+                <a href="{% url 'eventmanager:edit' event.pk %}" class="text-[11px] font-bold text-muted hover:text-ink">Edit</a>
+                <form method="post" action="{% url 'eventmanager:delete' event.pk %}" onsubmit="return confirm('Delete this event and all its registrations?')">{% csrf_token %}<button type="submit" class="text-[11px] font-bold text-danger hover:text-ink">Delete</button></form>
               </div>
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="6" class="!py-12 text-center"><p class="font-display text-lg font-semibold text-ink">No programmes yet</p><p class="mt-1 text-xs text-muted">Create the first event for the society.</p><a href="{% url 'programmes:create' %}" class="btn-primary btn-sm mt-4">New programme</a></td></tr>
+          <tr><td colspan="6" class="!py-12 text-center"><p class="font-display text-lg font-semibold text-ink">No events yet</p><p class="mt-1 text-xs text-muted">Create the first dated event for the society.</p><a href="{% url 'eventmanager:create' %}" class="btn-primary btn-sm mt-4">New event</a></td></tr>
         {% endfor %}
       </tbody>
     </table>

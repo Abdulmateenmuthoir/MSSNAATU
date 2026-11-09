@@ -14,8 +14,8 @@ from apps.accounts.emails import send_event_confirmation, send_event_reminder
 from apps.accounts.models import ROLE_EVENTS
 from apps.core.models import Department, LEVEL_CHOICES
 
-from .forms import EventForm
-from .models import Event, Registration
+from .forms import EventForm, ProgramForm
+from .models import Event, Program, Registration
 
 
 def event_list(request):
@@ -61,6 +61,10 @@ def event_detail(request, slug):
         "registration_count": event.registrations.count(),
     }
     return render(request, "events/detail.html", context)
+
+
+def programme_list(request):
+    return render(request, "events/programmes.html", {"programmes": Program.objects.filter(is_active=True)})
 
 
 @login_required
@@ -114,7 +118,7 @@ def event_create(request):
         event.created_by = request.user
         event.save()
         messages.success(request, "Event created.")
-        return redirect("programmes:list")
+        return redirect("eventmanager:list")
     return render(request, "dashboard/events/form.html", {"form": form, "event": None})
 
 
@@ -125,7 +129,7 @@ def event_edit(request, pk):
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Event updated.")
-        return redirect("programmes:list")
+        return redirect("eventmanager:list")
     return render(request, "dashboard/events/form.html", {"form": form, "event": event})
 
 
@@ -136,7 +140,7 @@ def event_delete(request, pk):
     title = event.title
     event.delete()
     messages.success(request, f"“{title}” was deleted.")
-    return redirect("programmes:list")
+    return redirect("eventmanager:list")
 
 
 @role_required(ROLE_EVENTS)
@@ -196,4 +200,45 @@ def send_reminders(request, pk):
         if send_event_reminder(event, registration.student):
             sent += 1
     messages.success(request, f"Reminder sent to {sent} registrant(s).")
-    return redirect("programmes:registrations", pk=event.pk)
+    return redirect("eventmanager:registrations", pk=event.pk)
+
+
+# ---------------------------------------------------------------------------
+# Recurring society programmes (distinct from dated events)
+# ---------------------------------------------------------------------------
+
+
+@role_required(ROLE_EVENTS)
+def program_manage_list(request):
+    return render(request, "dashboard/programmes/list.html", {"programmes": Program.objects.all()})
+
+
+@role_required(ROLE_EVENTS)
+def program_create(request):
+    form = ProgramForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Society programme added.")
+        return redirect("programmeadmin:list")
+    return render(request, "dashboard/programmes/form.html", {"form": form, "programme": None})
+
+
+@role_required(ROLE_EVENTS)
+def program_edit(request, pk):
+    programme = get_object_or_404(Program, pk=pk)
+    form = ProgramForm(request.POST or None, instance=programme)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Society programme updated.")
+        return redirect("programmeadmin:list")
+    return render(request, "dashboard/programmes/form.html", {"form": form, "programme": programme})
+
+
+@role_required(ROLE_EVENTS)
+@require_POST
+def program_delete(request, pk):
+    programme = get_object_or_404(Program, pk=pk)
+    name = programme.name
+    programme.delete()
+    messages.success(request, f"{name} was removed.")
+    return redirect("programmeadmin:list")

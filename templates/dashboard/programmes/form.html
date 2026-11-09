@@ -1,0 +1,7 @@
+{% extends "base_dashboard.html" %}
+{% block title %}{% if programme %}Edit programme{% else %}Add programme{% endif %} · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Activities{% endblock %}
+{% block page_title %}{% if programme %}Edit programme{% else %}Add programme{% endif %}{% endblock %}
+{% block dashboard_content %}
+<div class="mx-auto max-w-3xl rounded-2xl border border-line bg-surface p-6 sm:p-8"><form method="post" class="space-y-5">{% csrf_token %}{% for field in form %}<div>{% include "partials/field.html" with field=field %}</div>{% endfor %}<div class="flex gap-2"><button class="btn-primary btn-sm" type="submit">Save programme</button><a class="btn-outline btn-sm" href="{% url 'programmeadmin:list' %}">Cancel</a></div></form></div>
+{% endblock %}

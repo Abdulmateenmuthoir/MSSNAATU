@@ -1,6 +1,27 @@
 from django import forms
 
-from .models import Event
+from .models import Event, Program
+
+
+class ProgramForm(forms.ModelForm):
+    class Meta:
+        model = Program
+        fields = ["name", "summary", "description", "frequency", "coordinator", "order", "is_active"]
+        widgets = {
+            "summary": forms.Textarea(attrs={"rows": 2}),
+            "description": forms.Textarea(attrs={"rows": 8}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            widget = field.widget
+            if isinstance(widget, forms.CheckboxInput):
+                widget.attrs.setdefault("class", "checkbox")
+            elif isinstance(widget, forms.Select):
+                widget.attrs.setdefault("class", "field-input select")
+            else:
+                widget.attrs.setdefault("class", "field-input")
 
 
 class EventForm(forms.ModelForm):

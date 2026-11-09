@@ -14,7 +14,7 @@
   <div class="flex flex-wrap gap-2">
     {% if user.can_manage_people %}<a href="{% url 'people:create' %}" class="btn-outline btn-sm">Add student</a>{% endif %}
     {% if user.can_manage_content %}<a href="{% url 'newsroom:create' %}" class="btn-outline btn-sm">New article</a>{% endif %}
-    {% if user.can_manage_events %}<a href="{% url 'programmes:create' %}" class="btn-outline btn-sm">New programme</a>{% endif %}
+    {% if user.can_manage_events %}<a href="{% url 'eventmanager:create' %}" class="btn-outline btn-sm">New event</a><a href="{% url 'programmeadmin:create' %}" class="btn-outline btn-sm">New society programme</a>{% endif %}
     {% if not user.can_manage_people and not user.can_manage_content and not user.can_manage_events %}
       <a href="{% url 'library:list' %}" class="btn-outline btn-sm">Browse library</a>
     {% endif %}
@@ -63,7 +63,7 @@
   {% else %}
   <div class="card p-5">
     <div class="flex items-center justify-between">
-      <p class="stat-label">Next programme</p>
+      <p class="stat-label">Next event</p>
       <span class="grid h-8 w-8 place-items-center rounded-full bg-brandsoft text-brand"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg></span>
     </div>
     <p class="mt-3 text-lg font-bold leading-tight text-ink">{{ next_event.starts_at|date:"j M"|default:"—" }}</p>
@@ -74,11 +74,11 @@
 
 <div class="mt-6 grid gap-6 xl:grid-cols-[1.55fr_1fr]">
   <div class="space-y-6">
-    <!-- Next programme -->
+    <!-- Next dated event -->
     <section class="card overflow-hidden">
       <div class="flex items-center justify-between border-b border-line px-5 py-4">
-        <div><p class="eyebrow">On the calendar</p><h3 class="mt-1 font-display text-lg font-semibold text-ink">Next programme</h3></div>
-        <a href="{% url 'events:list' %}" class="text-[11px] font-bold text-brand hover:text-ink">All programmes →</a>
+        <div><p class="eyebrow">On the calendar</p><h3 class="mt-1 font-display text-lg font-semibold text-ink">Next event</h3></div>
+        <a href="{% url 'events:list' %}" class="text-[11px] font-bold text-brand hover:text-ink">All events →</a>
       </div>
       {% if next_event %}
         <div class="grid gap-5 p-5 sm:grid-cols-[92px_1fr_auto] sm:items-center">
@@ -98,7 +98,7 @@
         </div>
       {% else %}
         <div class="px-5 py-9 text-center">
-          <p class="text-sm font-semibold text-ink">No upcoming programme yet</p>
+          <p class="text-sm font-semibold text-ink">No upcoming event yet</p>
           <p class="mt-1 text-xs text-muted">The calendar will update as soon as the office publishes something.</p>
         </div>
       {% endif %}
@@ -108,7 +108,7 @@
     <section class="card overflow-hidden">
       <div class="flex items-center justify-between border-b border-line px-5 py-4">
         <div><p class="eyebrow">{% if user.can_manage_events %}Live records{% else %}My activity{% endif %}</p><h3 class="mt-1 font-display text-lg font-semibold text-ink">{% if user.can_manage_events %}Recent registrations{% else %}My registrations{% endif %}</h3></div>
-        <a href="{% if user.can_manage_events %}{% url 'programmes:list' %}{% else %}{% url 'events:list' %}{% endif %}" class="text-[11px] font-bold text-brand hover:text-ink">{% if user.can_manage_events %}Manage{% else %}Browse{% endif %} →</a>
+        <a href="{% if user.can_manage_events %}{% url 'eventmanager:list' %}{% else %}{% url 'events:list' %}{% endif %}" class="text-[11px] font-bold text-brand hover:text-ink">{% if user.can_manage_events %}Manage{% else %}Browse{% endif %} →</a>
       </div>
       <div class="divide-y divide-line">
         {% if user.can_manage_events %}

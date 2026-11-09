@@ -74,6 +74,10 @@ class Executive(models.Model):
     department = models.ForeignKey(
         "Department", on_delete=models.SET_NULL, null=True, blank=True, related_name="executives"
     )
+    department_label = models.CharField(
+        "department as supplied", max_length=140, blank=True,
+        help_text="Preserves the executive's department when it has not yet been added to the department directory.",
+    )
     level = models.CharField(max_length=3, choices=LEVEL_CHOICES, blank=True)
     order = models.PositiveSmallIntegerField(default=0)
     is_current = models.BooleanField(default=True)

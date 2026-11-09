@@ -30,8 +30,6 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
-  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-brand focus:px-5 focus:py-2.5 focus:text-sm focus:font-bold focus:text-onbrand">Skip to content</a>
-
   {% block header %}{% include "partials/public_nav.html" %}{% endblock %}
 
   {% include "partials/messages.html" %}

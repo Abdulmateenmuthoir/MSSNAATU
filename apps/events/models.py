@@ -19,6 +19,32 @@ ELIGIBILITY_GENDER = {
     ELIGIBILITY_SISTERS: "F",
 }
 
+PROGRAM_FREQUENCY_CHOICES = [
+    ("weekly", "Weekly"),
+    ("fortnightly", "Fortnightly"),
+    ("monthly", "Monthly"),
+    ("semester", "At least once each semester"),
+    ("annual", "Annual / once each session"),
+    ("periodic", "Regular or periodic"),
+    ("scheduled", "As scheduled by the Executive Council"),
+]
+
+
+class Program(models.Model):
+    name = models.CharField(max_length=160, unique=True)
+    summary = models.CharField(max_length=280)
+    description = models.TextField(blank=True)
+    frequency = models.CharField(max_length=16, choices=PROGRAM_FREQUENCY_CHOICES, default="scheduled")
+    coordinator = models.CharField(max_length=160, blank=True)
+    order = models.PositiveSmallIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name
+
 
 class Event(models.Model):
     title = models.CharField(max_length=180)

@@ -32,9 +32,9 @@ class CommitteeMemberInline(admin.TabularInline):
 
 @admin.register(Executive)
 class ExecutiveAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "position", "avatar_icon", "department", "level", "phone", "session", "is_current")
+    list_display = ("full_name", "position", "avatar_icon", "department", "department_label", "level", "phone", "session", "is_current")
     list_filter = ("session", "is_current", "avatar_icon", "level", "department__faculty")
-    search_fields = ("full_name", "position", "phone", "department__name")
+    search_fields = ("full_name", "position", "phone", "department__name", "department_label")
 
 
 @admin.register(Committee)

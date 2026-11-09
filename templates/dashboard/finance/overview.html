@@ -13,7 +13,7 @@
     <a href="{% url 'money:receipts' %}" class="btn-primary btn-sm">Review bank receipts{% if pending_receipt_count %} · {{ pending_receipt_count }}{% endif %}</a>
     <a href="{% url 'money:payments' %}" class="btn-outline btn-sm">All payments</a>
     <a href="{% url 'money:export' %}" class="btn-outline btn-sm">Export CSV</a>
-    <form method="post" action="{% url 'money:remind' %}" onsubmit="return confirm('Email everyone who has not paid in the last 7 days?')">{% csrf_token %}<button type="submit" class="btn-primary btn-sm">Send reminders</button></form>
+    <form method="post" action="{% url 'money:remind' %}" onsubmit="return confirm('Send a dues reminder to every member who has not paid this cycle?')">{% csrf_token %}<button type="submit" class="btn-primary btn-sm">Send reminder</button></form>
   </div>
 </div>
 

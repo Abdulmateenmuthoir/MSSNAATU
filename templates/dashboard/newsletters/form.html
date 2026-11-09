@@ -1,0 +1,8 @@
+{% extends "base_dashboard.html" %}
+{% block title %}{% if campaign %}Edit newsletter{% else %}Write newsletter{% endif %} · {{ site_name }}{% endblock %}
+{% block page_eyebrow %}Content{% endblock %}
+{% block page_title %}{% if campaign %}Edit newsletter{% else %}Write newsletter{% endif %}{% endblock %}
+{% block dashboard_content %}
+<div class="mx-auto max-w-3xl rounded-2xl border border-line bg-surface p-6 sm:p-8"><p class="text-sm leading-6 text-muted">Save a draft first, then use <strong>Send now</strong> to email active members and newsletter subscribers.</p><form method="post" class="mt-6 space-y-5">{% csrf_token %}{% for field in form %}<div>{% include "partials/field.html" with field=field %}</div>{% endfor %}<div class="flex flex-wrap gap-2"><button class="btn-primary btn-sm" type="submit">Save draft</button><a class="btn-outline btn-sm" href="{% url 'newsroom:newsletters' %}">Back to newsletters</a></div></form>
+{% if campaign and campaign.status != 'sent' %}<form class="mt-4" method="post" action="{% url 'newsroom:newsletter_send' campaign.pk %}" onsubmit="return confirm('Send this newsletter to every active member and subscriber?')">{% csrf_token %}<button class="btn-primary btn-sm" type="submit">Send newsletter</button></form>{% endif %}</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Standing committees · {{ site_name }}{% endblock %}
-{% block description %}The standing committees of MSSN AATU and their members.{% endblock %}
+{% block description %}The standing committees of MSSN AATU and the work each committee carries out.{% endblock %}
 
 {% block content %}
 <section class="relative overflow-hidden border-b border-line bg-surface2/50">
@@ -10,7 +10,7 @@
       <div class="max-w-2xl">
         <p class="eyebrow">Structure · {{ selected_session }}</p>
         <h1 class="mt-3 display-lg text-ink">Standing committees.</h1>
-        <p class="mt-4 lede">The working groups that carry the society's mandate — from da'wah and academics to welfare, finance and media.</p>
+        <p class="mt-4 lede">The committees that carry the society's mandate — from da'wah and academics to welfare, finance and media.</p>
       </div>
       {% if sessions %}
       <form method="get" class="shrink-0">
@@ -27,6 +27,7 @@
 </section>
 
 <section class="container-page py-16 sm:py-20">
+  <p class="mb-8 text-xs leading-5 text-muted">Responsibilities summarized from the First Technical University Branch Bye-law (1444 AH / 2022). Committee membership is managed separately by the society.</p>
   {% if committees %}
     <div class="grid gap-5 lg:grid-cols-2">
       {% for committee in committees %}
@@ -39,18 +40,17 @@
                 <p class="mt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-gold">{{ committee.session }}</p>
               </div>
             </div>
-            <span class="badge-neutral">{{ committee.members.count }} member{{ committee.members.count|pluralize }}</span>
+            <span class="badge-neutral">Standing committee</span>
           </div>
-          {% if committee.description %}<p class="mt-4 text-[13px] leading-6 text-muted">{{ committee.description }}</p>{% endif %}
-          {% if committee.members.all %}
-            <ul class="mt-5 divide-y divide-line border-t border-line">
-              {% for member in committee.members.all %}
-                <li class="flex items-center justify-between gap-4 py-2.5">
-                  <span class="text-[13px] font-semibold text-ink">{{ member.full_name }}</span>
-                  <span class="text-right text-[11px] text-muted">{{ member.role|default:"Member" }}</span>
-                </li>
-              {% endfor %}
-            </ul>
+          {% if committee.description %}
+            <div class="mt-5 border-t border-line pt-4">
+              <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-brand">What this committee does</p>
+              <p class="mt-2 text-[13px] leading-6 text-muted">{{ committee.description }}</p>
+            </div>
+          {% else %}
+            <div class="mt-5 border-t border-line pt-4">
+              <p class="text-[13px] leading-6 text-muted">Details for this committee will be added by the society office.</p>
+            </div>
           {% endif %}
         </article>
       {% endfor %}

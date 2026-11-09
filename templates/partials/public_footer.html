@@ -7,11 +7,7 @@
     <div class="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
       <div>
         <a href="{% url 'core:home' %}" class="flex items-center gap-3">
-          <span class="grid h-10 w-10 place-items-center rounded-full border border-[#d8b45a]/40 text-[#d8b45a]">
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 2.6l2.3 6.1 6.1 2.3-6.1 2.3L12 19.4l-2.3-6.1L3.6 11l6.1-2.3L12 2.6z" fill="currentColor"/>
-            </svg>
-          </span>
+          <img src="{% static 'img/favicon.ico' %}" alt="MSSN AATU emblem" class="h-10 w-10 rounded-xl bg-white object-contain">
           <span class="leading-none">
             <span class="block font-display text-xl font-semibold text-white">MSSN <span class="text-[#d8b45a]">AATU</span></span>
             <span class="mt-1 block text-[8px] font-bold uppercase tracking-[0.18em] text-[#93aa9e]">Abiola Ajimobi Technical University</span>
@@ -60,7 +56,7 @@
 
     <div class="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-[11px] text-[#8ea79a] sm:flex-row sm:items-center sm:justify-between">
       <p>© {% now "Y" %} Muslim Students' Society of Nigeria, AATU. All rights reserved.</p>
-      <p class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-[#d8b45a]"></span> Built for the Office of the Public Relations Officer</p>
+      <p class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-[#d8b45a]"></span> Built by MSSN AATU for the Muslim student community</p>
     </div>
   </div>
 </footer>

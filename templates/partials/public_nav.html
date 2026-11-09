@@ -23,7 +23,8 @@
       <a href="{% url 'core:executives' %}" class="nav-link {% if name == 'executives' %}is-active{% endif %}">Executives</a>
       <a href="{% url 'core:branches' %}" class="nav-link {% if name == 'branches' %}is-active{% endif %}">Branches</a>
       <a href="{% url 'core:committees' %}" class="nav-link {% if name == 'committees' %}is-active{% endif %}">Committees</a>
-      <a href="{% url 'events:list' %}" class="nav-link {% if ns == 'events' %}is-active{% endif %}">Programmes</a>
+      <a href="{% url 'programmes_list' %}" class="nav-link {% if name == 'programmes_list' %}is-active{% endif %}">Programmes</a>
+      <a href="{% url 'events:list' %}" class="nav-link {% if ns == 'events' %}is-active{% endif %}">Events</a>
       <a href="{% url 'blog:list' %}" class="nav-link {% if ns == 'blog' %}is-active{% endif %}">Articles</a>
       <a href="{% url 'library:list' %}" class="nav-link {% if ns == 'library' %}is-active{% endif %}">Library</a>
     </nav>
@@ -59,7 +60,8 @@
       <a href="{% url 'core:executives' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Executives</a>
       <a href="{% url 'core:branches' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Branches</a>
       <a href="{% url 'core:committees' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Standing committees</a>
-      <a href="{% url 'events:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Events &amp; programmes</a>
+      <a href="{% url 'programmes_list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Programmes</a>
+      <a href="{% url 'events:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Events</a>
       <a href="{% url 'blog:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Articles</a>
       <a href="{% url 'library:list' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Past questions</a>
       <a href="{% url 'core:contact' %}" class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-surface2">Contact the office</a>

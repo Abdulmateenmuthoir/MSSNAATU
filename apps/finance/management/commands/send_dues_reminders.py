@@ -7,17 +7,17 @@ from django.utils import timezone
 
 from apps.accounts.emails import send_dues_reminder
 from apps.finance.models import DuesCycle, Payment, ReminderLog
-from apps.accounts.models import Student
+from apps.accounts.models import ROLE_MEMBER, Student
 
 
 class Command(BaseCommand):
-    help = "Email a weekly dues reminder to every active member who has not paid."
+    help = "Email a fortnightly dues reminder to active members who have not paid."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--force",
             action="store_true",
-            help="Send even if the member received a reminder in the last 7 days.",
+            help="Send even if the member received a reminder in the last 14 days.",
         )
         parser.add_argument("--dry-run", action="store_true", help="Show who would be emailed.")
 
@@ -28,10 +28,10 @@ class Command(BaseCommand):
             return
 
         paid_ids = Payment.objects.filter(cycle=cycle, status=Payment.SUCCESS).values_list("student_id", flat=True)
-        students = Student.objects.filter(is_active=True).exclude(id__in=paid_ids).select_related("department")
+        students = Student.objects.filter(is_active=True, role=ROLE_MEMBER).exclude(id__in=paid_ids).select_related("department")
         if not options["force"]:
             recently = ReminderLog.objects.filter(
-                cycle=cycle, sent_at__gte=timezone.now() - timedelta(days=7)
+                cycle=cycle, sent_at__gte=timezone.now() - timedelta(days=14)
             ).values_list("student_id", flat=True)
             students = students.exclude(id__in=recently)
 

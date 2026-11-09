@@ -52,7 +52,7 @@
             <h2 class="font-display text-xl font-semibold text-ink">{{ person.full_name }}</h2>
             <p class="mt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-gold">{{ person.position }}</p>
             <div class="mt-3 flex flex-wrap gap-2">
-              <span class="tag !px-2.5 !py-1 !text-[10px]">{{ person.department.name|default:"Department not listed" }}</span>
+              <span class="tag !px-2.5 !py-1 !text-[10px]">{{ person.department.name|default:person.department_label|default:"Department not listed" }}</span>
               <span class="tag !px-2.5 !py-1 !text-[10px]">{{ person.get_level_display|default:"Level not listed" }}</span>
             </div>
             {% if person.bio %}<p class="mt-3 line-clamp-3 text-[13px] leading-6 text-muted">{{ person.bio }}</p>{% endif %}
