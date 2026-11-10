@@ -14,7 +14,7 @@ def generate_reference():
 
 @deconstructible
 class PrivateReceiptStorage(FileSystemStorage):
-    """Store receipts outside MEDIA_ROOT; access them only through the finance view."""
+    """Legacy storage class kept so applied historical migrations remain loadable."""
 
     def __init__(self):
         super().__init__(location=settings.BASE_DIR / "private_uploads")
@@ -56,17 +56,6 @@ class Payment(models.Model):
     gateway = models.CharField(max_length=30, default="paystack")
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
     gateway_reference = models.CharField(max_length=120, blank=True)
-    receipt = models.FileField(
-        upload_to="dues-receipts/%Y/%m/",
-        storage=PrivateReceiptStorage(),
-        blank=True,
-    )
-    review_note = models.CharField(max_length=300, blank=True)
-    reviewed_at = models.DateTimeField(null=True, blank=True)
-    reviewed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
-        related_name="reviewed_dues_payments",
-    )
     paid_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

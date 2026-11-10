@@ -4,34 +4,6 @@ from django.utils import timezone
 from .models import DuesCycle
 
 
-class BankReceiptForm(forms.Form):
-    receipt = forms.FileField(
-        label="Transfer receipt",
-        help_text="Upload a JPG, PNG or PDF, up to 5 MB.",
-        widget=forms.ClearableFileInput(attrs={"accept": ".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"}),
-    )
-
-    def clean_receipt(self):
-        upload = self.cleaned_data["receipt"]
-        allowed_extensions = {".jpg", ".jpeg", ".png", ".pdf"}
-        if upload.size > 5 * 1024 * 1024:
-            raise forms.ValidationError("The receipt must be 5 MB or smaller.")
-        extension = upload.name.rsplit(".", 1)[-1].lower() if "." in upload.name else ""
-        signatures = {
-            "jpg": (b"\xff\xd8\xff",),
-            "jpeg": (b"\xff\xd8\xff",),
-            "png": (b"\x89PNG\r\n\x1a\n",),
-            "pdf": (b"%PDF-",),
-        }
-        if f".{extension}" not in allowed_extensions:
-            raise forms.ValidationError("Upload a JPG, PNG or PDF receipt.")
-        header = upload.read(8)
-        upload.seek(0)
-        if not any(header.startswith(signature) for signature in signatures[extension]):
-            raise forms.ValidationError("The uploaded file does not match its file type.")
-        return upload
-
-
 class DuesCycleForm(forms.ModelForm):
     class Meta:
         model = DuesCycle

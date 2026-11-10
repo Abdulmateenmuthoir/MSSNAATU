@@ -160,9 +160,6 @@ PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "")
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 PAYSTACK_CALLBACK_URL = os.getenv("PAYSTACK_CALLBACK_URL", f"{SITE_URL}/dues/callback/")
 PAYSTACK_BASE_URL = "https://api.paystack.co"
-DUES_BANK_NAME = os.getenv("DUES_BANK_NAME", "")
-DUES_ACCOUNT_NAME = os.getenv("DUES_ACCOUNT_NAME", "")
-DUES_ACCOUNT_NUMBER = os.getenv("DUES_ACCOUNT_NUMBER", "")
 
 # ---------------------------------------------------------------------------
 # Messages & session

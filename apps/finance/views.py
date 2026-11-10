@@ -4,18 +4,17 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-from django.http import FileResponse, Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.accounts.decorators import role_required
 from apps.accounts.emails import send_dues_reminder, send_payment_receipt
 from apps.accounts.models import ROLE_FINANCE, ROLE_MEMBER, Student
-from apps.core.models import Department, LEVEL_CHOICES
+from apps.core.models import LEVEL_CHOICES
 
-from .forms import BankReceiptForm, DuesCycleForm
+from .forms import DuesCycleForm
 from .models import DuesCycle, Payment, ReminderLog
 from .services import initialize_transaction, is_configured, verify_transaction
 
@@ -43,7 +42,7 @@ def dues_home(request):
             request.user.payments.filter(cycle=cycle, status=Payment.SUCCESS).order_by("-paid_at").first()
         )
         pending_payment = request.user.payments.filter(
-            cycle=cycle, gateway="bank_transfer", status=Payment.PENDING
+            cycle=cycle, gateway="paystack", status=Payment.PENDING
         ).order_by("-created_at").first()
         history = request.user.payments.select_related("cycle").order_by("-created_at")
     return render(
@@ -53,53 +52,10 @@ def dues_home(request):
             "cycle": cycle,
             "payment": payment,
             "pending_payment": pending_payment,
-            "replaceable_payment": request.user.payments.filter(
-                cycle=cycle, gateway="bank_transfer", status__in=[Payment.PENDING, Payment.FAILED]
-            ).order_by("-created_at").first(),
             "history": history,
             "paystack_ready": is_configured(),
-            "bank_details": {
-                "name": settings.DUES_BANK_NAME,
-                "account_name": settings.DUES_ACCOUNT_NAME,
-                "account_number": settings.DUES_ACCOUNT_NUMBER,
-            },
-            "bank_ready": all((settings.DUES_BANK_NAME, settings.DUES_ACCOUNT_NAME, settings.DUES_ACCOUNT_NUMBER)),
-            "receipt_form": BankReceiptForm(),
         },
     )
-
-
-@login_required
-@require_POST
-def submit_bank_receipt(request):
-    cycle = DuesCycle.objects.filter(is_active=True).first()
-    if not cycle:
-        messages.error(request, "No active dues cycle has been set yet.")
-        return redirect("finance:dues")
-    if request.user.payments.filter(cycle=cycle, status=Payment.SUCCESS).exists():
-        messages.info(request, "Your dues for this session are already paid.")
-        return redirect("finance:dues")
-
-    form = BankReceiptForm(request.POST, request.FILES)
-    if not form.is_valid():
-        for error in form.errors.get("receipt", []):
-            messages.error(request, error)
-        return redirect("finance:dues")
-    existing = request.user.payments.filter(
-        cycle=cycle, gateway="bank_transfer", status__in=[Payment.PENDING, Payment.FAILED]
-    ).order_by("-created_at").first()
-    if existing:
-        payment = existing
-        payment.status = Payment.PENDING
-        payment.review_note = ""
-        payment.reviewed_at = None
-        payment.reviewed_by = None
-    else:
-        payment = Payment(student=request.user, cycle=cycle, amount=cycle.amount, gateway="bank_transfer")
-    payment.receipt = form.cleaned_data["receipt"]
-    payment.save()
-    messages.success(request, "Receipt submitted. Your payment is pending Finance verification.")
-    return redirect("finance:dues")
 
 
 @login_required
@@ -114,7 +70,7 @@ def initialize_payment(request):
         return redirect("finance:dues")
 
     if not is_configured():
-        messages.error(request, "Online payment is not configured. Please use the bank transfer option below or contact the Finance Officer.")
+        messages.error(request, "Paystack is not configured yet. Please check back after the Finance Officer enables online payment.")
         return redirect("finance:dues")
     pending = request.user.payments.filter(cycle=cycle, status=Payment.PENDING, gateway="paystack").order_by("-created_at").first()
     payment = pending or Payment.objects.create(student=request.user, cycle=cycle, amount=cycle.amount)
@@ -203,9 +159,6 @@ def finance_dashboard(request):
             "levels": LEVEL_CHOICES,
             "level": level,
             "form": DuesCycleForm(instance=cycle) if cycle else DuesCycleForm(),
-            "pending_receipt_count": Payment.objects.filter(
-                gateway="bank_transfer", status=Payment.PENDING, receipt__gt=""
-            ).count(),
         },
     )
 
@@ -283,55 +236,3 @@ def payments_list(request):
         "dashboard/finance/payments.html",
         {"payments": payments, "cycle": cycle, "status": status},
     )
-
-
-@role_required(ROLE_FINANCE)
-def receipt_reviews(request):
-    payments = Payment.objects.filter(
-        gateway="bank_transfer", status=Payment.PENDING, receipt__gt=""
-    ).select_related("student", "cycle").order_by("created_at")
-    return render(request, "dashboard/finance/receipts.html", {"payments": payments})
-
-
-@role_required(ROLE_FINANCE)
-def private_receipt_file(request, payment_id):
-    payment = get_object_or_404(Payment, pk=payment_id, gateway="bank_transfer")
-    if not payment.receipt:
-        raise Http404("Receipt file not found.")
-    try:
-        return FileResponse(payment.receipt.open("rb"), as_attachment=False, filename=payment.receipt.name.rsplit("/", 1)[-1])
-    except FileNotFoundError as exc:
-        raise Http404("Receipt file not found.") from exc
-
-
-@role_required(ROLE_FINANCE)
-@require_POST
-def review_bank_receipt(request, payment_id):
-    payment = get_object_or_404(
-        Payment.objects.select_related("student", "cycle"),
-        pk=payment_id, gateway="bank_transfer", status=Payment.PENDING,
-    )
-    action = request.POST.get("action")
-    note = request.POST.get("review_note", "").strip()[:300]
-    if action == "approve":
-        payment.status = Payment.SUCCESS
-        payment.paid_at = timezone.now()
-        payment.reviewed_at = payment.paid_at
-        payment.reviewed_by = request.user
-        payment.review_note = note
-        payment.save(update_fields=["status", "paid_at", "reviewed_at", "reviewed_by", "review_note"])
-        send_payment_receipt(payment)
-        messages.success(request, f"Payment verified. Confirmation sent to {payment.student.email}.")
-    elif action == "reject":
-        if not note:
-            messages.error(request, "Add a short reason before rejecting this receipt.")
-            return redirect("money:receipts")
-        payment.status = Payment.FAILED
-        payment.reviewed_at = timezone.now()
-        payment.reviewed_by = request.user
-        payment.review_note = note
-        payment.save(update_fields=["status", "reviewed_at", "reviewed_by", "review_note"])
-        messages.success(request, "Receipt marked as unverified.")
-    else:
-        messages.error(request, "Choose whether to approve or reject this receipt.")
-    return redirect("money:receipts")

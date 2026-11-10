@@ -33,7 +33,7 @@
         <div class="relative">
           <div class="flex items-start justify-between gap-4">
             <div><p class="text-[9px] font-bold uppercase tracking-[0.18em] text-[#d8b45a]">Annual dues</p><h2 class="mt-1 font-display text-2xl font-semibold text-white">{{ cycle.session }}</h2></div>
-            {% if payment %}<span class="badge-green !bg-[#d8b45a]/15 !text-[#d8b45a]">Paid</span>{% elif pending_payment %}<span class="badge-gold !bg-white/10 !text-[#d8b45a]">Pending verification</span>{% else %}<span class="badge-gold !bg-white/10 !text-[#d8b45a]">Outstanding</span>{% endif %}
+            {% if payment %}<span class="badge-green !bg-[#d8b45a]/15 !text-[#d8b45a]">Paid</span>{% elif pending_payment %}<span class="badge-gold !bg-white/10 !text-[#d8b45a]">Payment started</span>{% else %}<span class="badge-gold !bg-white/10 !text-[#d8b45a]">Outstanding</span>{% endif %}
           </div>
           <p class="mt-6 font-display text-[clamp(2.5rem,7vw,4rem)] font-semibold leading-none text-white">₦{{ cycle.amount|floatformat:0|intcomma }}</p>
           <p class="mt-2 text-xs text-[#a9bdb3]">{% if cycle.due_date %}Due by {{ cycle.due_date|date:"j F Y" }}{% else %}Pay at your convenience{% endif %}</p>
@@ -46,41 +46,18 @@
             </div>
             <a href="{% url 'finance:receipt' payment.reference %}" class="btn-gold mt-5 w-full">View and print receipt</a>
           {% elif pending_payment %}
-            <div class="mt-6 rounded-2xl border border-amber-200/30 bg-white/[0.06] p-4">
-              <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-[#d8b45a]">{% if pending_payment.receipt %}Receipt received{% else %}Payment started{% endif %}</p>
-              <p class="mt-1 text-sm font-semibold text-white">{% if pending_payment.receipt %}Awaiting Finance verification{% else %}Upload your transfer receipt below{% endif %}</p>
-              <p class="mt-1 text-[11px] text-[#a9bdb3]">Reference {{ pending_payment.reference }} · We’ll email you when it is approved.</p>
-            </div>
+            <p class="mt-6 rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-sm text-[#a9bdb3]">Payment reference <span class="font-mono text-white">{{ pending_payment.reference }}</span> is awaiting confirmation. If you did not complete checkout, you can try again below.</p>
+            <form method="post" action="{% url 'finance:pay' %}" class="mt-4">{% csrf_token %}<button type="submit" {% if not paystack_ready %}disabled{% endif %} class="btn-gold w-full disabled:cursor-not-allowed disabled:opacity-50">Continue payment</button></form>
           {% else %}
-            {% if paystack_ready %}
             <form method="post" action="{% url 'finance:pay' %}" class="mt-6">
               {% csrf_token %}
-              <button type="submit" class="btn-gold w-full">Pay ₦{{ cycle.amount|floatformat:0|intcomma }} securely</button>
+              <button type="submit" {% if not paystack_ready %}disabled{% endif %} class="btn-gold w-full disabled:cursor-not-allowed disabled:opacity-50">Pay ₦{{ cycle.amount|floatformat:0|intcomma }} securely</button>
             </form>
-            <p class="mt-3 text-center text-[10px] text-[#8ea79a]">Paystack · card, bank transfer or USSD</p>
-            {% else %}<p class="mt-6 text-center text-xs text-[#a9bdb3]">Online payment is unavailable. Use the bank transfer option below.</p>{% endif %}
+            <p class="mt-3 text-center text-[10px] text-[#8ea79a]">Secure payment powered by Paystack · card, bank transfer or USSD</p>
+            {% if not paystack_ready %}<p class="mt-3 text-center text-[11px] text-[#d8b45a]">Online payment will be available when Paystack is configured.</p>{% endif %}
           {% endif %}
         </div>
       </section>
-
-      {% if not payment %}
-      <section class="card mt-6 p-6 sm:p-8">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div><p class="eyebrow">Manual bank transfer</p><h2 class="mt-2 font-display text-2xl font-semibold text-ink">Pay by transfer</h2><p class="mt-2 text-sm leading-6 text-muted">Transfer exactly <strong class="text-ink">₦{{ cycle.amount|floatformat:0|intcomma }}</strong> and upload your transaction receipt. Finance will verify it against the bank before approving your dues.</p></div>
-          <span class="badge-gold">Approval required</span>
-        </div>
-        {% if bank_ready %}<div class="mt-5 grid gap-3 sm:grid-cols-3">
-          <div class="rounded-2xl border border-line p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Bank</p><p class="mt-1 font-semibold text-ink">{{ bank_details.name }}</p></div>
-          <div class="rounded-2xl border border-line p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Account name</p><p class="mt-1 font-semibold text-ink">{{ bank_details.account_name }}</p></div>
-          <div class="rounded-2xl border border-line p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-muted">Account number</p><div class="mt-1 flex items-center justify-between gap-2"><p class="font-mono text-lg font-bold tracking-wider text-ink">{{ bank_details.account_number }}</p><button type="button" data-copy="{{ bank_details.account_number }}" class="btn-outline btn-sm">Copy</button></div></div>
-        </div>{% else %}<p class="mt-5 rounded-xl border border-dashed border-line p-4 text-sm text-muted">Verified account details are being prepared. Contact the Finance Officer for the account number before transferring.</p>{% endif %}
-        <form method="post" enctype="multipart/form-data" action="{% url 'finance:submit_bank_receipt' %}" class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end">
-          {% csrf_token %}
-          <div class="min-w-0 flex-1"><label for="id_receipt" class="mb-2 block text-xs font-bold text-ink">Upload transfer receipt</label><input id="id_receipt" name="receipt" type="file" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" required class="field-input" aria-describedby="receipt-help"><p id="receipt-help" class="mt-1 text-[11px] text-muted">JPG, PNG or PDF · 5 MB maximum</p></div>
-          <button type="submit" class="btn-primary btn-sm">{% if replaceable_payment and replaceable_payment.receipt %}Update receipt{% else %}Submit for verification{% endif %}</button>
-        </form>
-      </section>
-      {% endif %}
 
       <section class="card p-6">
         <p class="eyebrow">Why dues matter</p>
@@ -91,7 +68,7 @@
           <li class="flex gap-2.5"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span> The society's daily administration and outreach.</li>
         </ul>
         {% if cycle.note %}<p class="mt-4 rounded-xl bg-surface2/70 px-4 py-3 text-[11px] leading-5 text-muted">{{ cycle.note }}</p>{% endif %}
-        <p class="mt-4 border-t border-line pt-4 text-[10px] leading-5 text-muted">Online payments are confirmed automatically. Bank transfers stay pending until Finance verifies the receipt and bank transaction; approved payments receive an email confirmation.</p>
+        <p class="mt-4 border-t border-line pt-4 text-[10px] leading-5 text-muted">Payments are securely processed by Paystack and confirmed automatically. A payment confirmation is sent by email after verification.</p>
       </section>
     </div>
 

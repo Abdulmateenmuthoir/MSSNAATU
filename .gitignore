@@ -13,6 +13,7 @@ venv/
 # Django
 db.sqlite3
 staticfiles/
+release/
 media/*
 !media/.gitkeep
 private_uploads/
