@@ -85,12 +85,24 @@
         <div class="grid h-12 w-12 place-items-center rounded-full bg-brandsoft text-brand">
           <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 016.5 3H18a2 2 0 012 2v14a2 2 0 01-2 2H6.5A2.5 2.5 0 014 18.5z"/><path d="M8 7h8M8 11h8M8 15h5" stroke-linecap="round"/></svg>
         </div>
-        <p class="mt-4 font-display text-lg font-semibold text-ink">No stories found</p>
-        <p class="mt-1 text-sm text-muted">{% if query %}Try a different search, or browse all stories.{% else %}The first story is being written. Check back soon.{% endif %}</p>
-        {% if query or selected_category %}<a href="{% url 'blog:list' %}" class="btn-outline btn-sm mt-5">Clear filters</a>{% endif %}
+        {% if featured %}
+          <p class="mt-4 font-display text-lg font-semibold text-ink">You’ve reached the end</p>
+          <p class="mt-1 text-sm text-muted">That’s all the stories available{% if query or selected_category %} for this selection{% endif %}.</p>
+        {% else %}
+          <p class="mt-4 font-display text-lg font-semibold text-ink">{% if query or selected_category %}No stories found{% else %}No articles yet{% endif %}</p>
+          <p class="mt-1 text-sm text-muted">{% if query %}Try a different search, or browse all stories.{% elif selected_category %}There are no published stories in this category yet.{% else %}Check back soon for the first published story.{% endif %}</p>
+          {% if query or selected_category %}<a href="{% url 'blog:list' %}" class="btn-outline btn-sm mt-5">Clear filters</a>{% endif %}
+        {% endif %}
       </div>
     {% endfor %}
   </div>
+
+  {% if featured and page.object_list and not page.has_next %}
+    <div class="empty-state mt-8 py-8">
+      <p class="font-display text-lg font-semibold text-ink">You’ve reached the end</p>
+      <p class="mt-1 text-sm text-muted">That’s all the stories available{% if query or selected_category %} for this selection{% endif %}.</p>
+    </div>
+  {% endif %}
 
   {% include "partials/pagination.html" with page=page query_string=query_string %}
 </section>
