@@ -740,7 +740,6 @@ class Command(BaseCommand):
         self.stdout.write("  Library       library@mssnaatu.org     / " + password)
         self.stdout.write("  Member        aisha.bello@example.com  / " + password)
         self.stdout.write("")
-        self.stdout.write(f"  New payments created: {payment_count}")
         self.stdout.write(
             self.style.WARNING(
                 "  Change these passwords before deploying to production."
