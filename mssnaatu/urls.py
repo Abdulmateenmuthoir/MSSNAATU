@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from apps.events import views as event_views
+from apps.core.views import public_media
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
@@ -28,3 +29,7 @@ handler500 = "apps.core.views.error_500"
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # cPanel Passenger does not serve Django's MEDIA_ROOT automatically.
+    # Expose only public image uploads; library files stay behind their views.
+    urlpatterns += [re_path(r"^media/(?P<path>.+)$", public_media, name="public_media")]

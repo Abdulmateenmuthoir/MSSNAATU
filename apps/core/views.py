@@ -1,10 +1,13 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from mimetypes import guess_type
+from pathlib import Path
 
 from apps.accounts.models import ROLE_MEMBER, Student
 from apps.blog.models import Post
@@ -14,6 +17,32 @@ from apps.library.models import PastQuestion
 
 from .forms import ContactForm, NewsletterForm
 from .models import Announcement, Committee, Executive, Faculty, NewsletterSubscriber
+
+
+def public_media(request, path):
+    """Serve only image uploads used on public pages (never library documents)."""
+    allowed_directories = {"avatars", "news", "events", "executives"}
+    allowed_extensions = {".avif", ".gif", ".jpeg", ".jpg", ".png", ".webp"}
+    parts = Path(path).parts
+    if len(parts) < 2 or parts[0] not in allowed_directories:
+        raise Http404
+
+    image_path = Path(settings.MEDIA_ROOT, path).resolve()
+    media_root = Path(settings.MEDIA_ROOT).resolve()
+    try:
+        image_path.relative_to(media_root)
+    except ValueError:
+        raise Http404
+    if image_path.suffix.lower() not in allowed_extensions or not image_path.is_file():
+        raise Http404
+
+    response = FileResponse(
+        image_path.open("rb"),
+        content_type=guess_type(image_path.name)[0] or "application/octet-stream",
+    )
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = "public, max-age=86400"
+    return response
 
 
 def home(request):
