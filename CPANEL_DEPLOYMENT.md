@@ -13,6 +13,12 @@ Add these variables to the cPanel Python application's environment configuration
 
 The same Brevo sender is used for article announcements, newsletters, dues reminders, and account emails.
 
+You do not need to upload a `.env` file to cPanel. Add these names and values under **cPanel → Setup Python App → Environment variables**. The app also reads a `.env` file from the project root if you choose to create one with File Manager, but keep it out of `public_html` and never put it in a release ZIP. Brevo transactional email uses the REST API key, not the SMTP password. The sender address must be verified in Brevo.
+
+## Paystack live keys
+
+After Paystack verifies the account, add `PAYSTACK_PUBLIC_KEY` and `PAYSTACK_SECRET_KEY` from the Paystack dashboard to the Python application's environment variables (or the private project-root `.env`). Use the live `pk_live_…` and `sk_live_…` keys for live charges. Set `SITE_URL=https://mssnaatu.org` and `PAYSTACK_CALLBACK_URL=https://mssnaatu.org/dues/callback/`, then restart the app. Keep the secret key private; do not put it in source code or GitHub.
+
 ## Automatic dues reminders
 
 Add a job under **cPanel → Cron Jobs** to run `manage.py send_dues_reminders`. Use the full path to the application's virtual-environment Python executable and the deployed project directory, for example:

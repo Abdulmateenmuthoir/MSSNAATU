@@ -112,5 +112,30 @@
   </div>
 
   {% include "partials/pagination.html" with page=page query_string=query_string %}
+
+  {% if past_highlights %}
+    <section class="mt-20 border-t border-line pt-12" aria-labelledby="past-highlights-title">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow">Memories from campus</p>
+          <h2 id="past-highlights-title" class="mt-2 font-display text-3xl font-semibold text-ink">Past editions</h2>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-muted">A look back at programmes and events shared by the society.</p>
+        </div>
+        <a href="?show=past" class="link-underline text-sm">All past events <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {% for highlight in past_highlights %}
+          <a href="{{ highlight.get_absolute_url }}" class="group overflow-hidden rounded-2xl border border-line bg-surface shadow-soft transition hover:-translate-y-1 hover:shadow-lift">
+            <img src="{{ highlight.flyer.url }}" alt="{{ highlight.title }}" loading="lazy" class="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.02]">
+            <div class="p-5">
+              <p class="text-[10px] font-bold uppercase tracking-[0.13em] text-muted">{{ highlight.starts_at|date:"j F Y" }}</p>
+              <h3 class="mt-2 font-display text-xl font-semibold text-ink">{{ highlight.title }}</h3>
+              <p class="mt-2 line-clamp-2 text-sm leading-6 text-muted">{{ highlight.summary }}</p>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
 </section>
 {% endblock %}

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import F
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Q
@@ -12,6 +13,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.utils.html import escape
+import logging
 
 from apps.accounts.decorators import role_required
 from apps.accounts.models import ROLE_EDITOR, ROLE_MEMBER
@@ -19,6 +21,8 @@ from apps.core.models import NewsletterSubscriber
 
 from .forms import CommentForm, NewsletterCampaignForm, PostForm
 from .models import CATEGORY_CHOICES, Comment, NewsEmailCampaign, NewsletterCampaign, Post
+
+logger = logging.getLogger(__name__)
 
 
 def send_news_campaign(campaign):
@@ -113,7 +117,8 @@ def post_detail(request, slug):
     post = get_object_or_404(Post.objects.select_related("author"), slug=slug)
     if not post.is_published and not (request.user.is_authenticated and request.user.can_manage_content):
         raise Http404
-    Post.objects.filter(pk=post.pk).update(views=post.views + 1)
+    Post.objects.filter(pk=post.pk).update(views=F("views") + 1)
+    post.refresh_from_db(fields=["views"])
     comments = post.comments.filter(is_visible=True).select_related("author")
     form = CommentForm()
     related = (
@@ -283,16 +288,23 @@ def send_newsletter_campaign(campaign):
         campaign.last_error = "Configure BREVO_API_KEY and BREVO_SENDER_EMAIL to send this newsletter."
         campaign.save(update_fields=["status", "last_error", "updated_at"])
         return False
-    User = get_user_model()
-    addresses = set(NewsletterSubscriber.objects.filter(is_active=True).values_list("email", flat=True))
-    addresses.update(User.objects.filter(is_active=True, role=ROLE_MEMBER).exclude(email="").values_list("email", flat=True))
-    addresses = sorted({address.strip().lower() for address in addresses if address.strip()})
-    body = "<br>".join(escape(line) for line in campaign.content.splitlines())
-    html = ("<div style='font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#18201d'>"
-            f"<p style='color:#16804d;font-weight:bold'>MSSN AATU · NEWSLETTER</p><h1>{escape(campaign.title)}</h1>"
-            f"<p style='color:#66736d'>{escape(campaign.preview)}</p><div style='line-height:1.7'>{body}</div>"
-            "<p>MSSN AATU</p></div>")
+    addresses = []
     try:
+        User = get_user_model()
+        addresses = set(NewsletterSubscriber.objects.filter(is_active=True).values_list("email", flat=True))
+        addresses.update(User.objects.filter(is_active=True, role=ROLE_MEMBER).exclude(email="").values_list("email", flat=True))
+        addresses = sorted({address.strip().lower() for address in addresses if address.strip()})
+        if not addresses:
+            campaign.status = NewsletterCampaign.FAILED
+            campaign.last_error = "There are no active subscribers or member email addresses to send to."
+            campaign.save(update_fields=["status", "last_error", "updated_at"])
+            return False
+
+        body = "<br>".join(escape(line) for line in campaign.content.splitlines())
+        html = ("<div style='font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#18201d'>"
+                f"<p style='color:#16804d;font-weight:bold'>MSSN AATU · NEWSLETTER</p><h1>{escape(campaign.title)}</h1>"
+                f"<p style='color:#66736d'>{escape(campaign.preview)}</p><div style='line-height:1.7'>{body}</div>"
+                "<p>MSSN AATU</p></div>")
         for start in range(0, len(addresses), 1000):
             batch = addresses[start:start + 1000]
             payload = {"sender": {"name": settings.BREVO_SENDER_NAME, "email": settings.BREVO_SENDER_EMAIL},
@@ -309,10 +321,20 @@ def send_newsletter_campaign(campaign):
         campaign.recipient_count = len(addresses)
         campaign.sent_at = timezone.now()
         campaign.last_error = ""
-    except (HTTPError, URLError, RuntimeError, TimeoutError) as exc:
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
         campaign.status = NewsletterCampaign.FAILED
         campaign.recipient_count = len(addresses)
+        campaign.last_error = f"Brevo returned HTTP {exc.code}: {detail}"[:300]
+        logger.warning("Brevo newsletter send failed for campaign %s: %s", campaign.pk, campaign.last_error)
+    except (URLError, RuntimeError, TimeoutError, OSError) as exc:
+        campaign.status = NewsletterCampaign.FAILED
         campaign.last_error = str(exc)[:300]
+        logger.exception("Newsletter delivery failed for campaign %s", campaign.pk)
+    except Exception as exc:
+        campaign.status = NewsletterCampaign.FAILED
+        campaign.last_error = f"Newsletter processing failed: {exc}"[:300]
+        logger.exception("Newsletter processing failed for campaign %s", campaign.pk)
     campaign.save(update_fields=["status", "recipient_count", "sent_at", "last_error", "updated_at"])
     return campaign.status == NewsletterCampaign.SENT
 

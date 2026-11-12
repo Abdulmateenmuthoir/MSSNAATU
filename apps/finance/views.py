@@ -14,7 +14,7 @@ from apps.accounts.emails import send_dues_reminder, send_payment_receipt
 from apps.accounts.models import ROLE_FINANCE, ROLE_MEMBER, Student
 from apps.core.models import LEVEL_CHOICES
 
-from .forms import DuesCycleForm
+from .forms import DuesCycleForm, DuesPaymentForm
 from .models import DuesCycle, Payment, ReminderLog
 from .services import initialize_transaction, is_configured, verify_transaction
 
@@ -73,7 +73,17 @@ def initialize_payment(request):
         messages.error(request, "Paystack is not configured yet. Please check back after the Finance Officer enables online payment.")
         return redirect("finance:dues")
     pending = request.user.payments.filter(cycle=cycle, status=Payment.PENDING, gateway="paystack").order_by("-created_at").first()
-    payment = pending or Payment.objects.create(student=request.user, cycle=cycle, amount=cycle.amount)
+    form = DuesPaymentForm(request.POST, minimum=cycle.amount)
+    if form.is_valid():
+        amount = form.cleaned_data["amount"]
+    elif pending and not request.POST.get("amount"):
+        amount = pending.amount
+    else:
+        messages.error(request, form.errors.get("amount", ["Enter a valid payment amount."])[0])
+        return redirect("finance:dues")
+
+    payment = pending if pending and pending.amount == amount else None
+    payment = payment or Payment.objects.create(student=request.user, cycle=cycle, amount=amount)
     url, error = initialize_transaction(payment)
     if url:
         return redirect(url)
@@ -97,6 +107,12 @@ def callback(request):
 
     success, payload = verify_transaction(reference)
     if success:
+        expected_kobo = int(payment.amount * 100)
+        if payload.get("amount") != expected_kobo or payload.get("currency") != "NGN":
+            payment.status = Payment.FAILED
+            payment.save(update_fields=["status"])
+            messages.error(request, "The confirmed Paystack amount did not match this payment. Contact the Finance Officer.")
+            return redirect("finance:dues")
         payment.mark_paid(payload.get("reference", reference))
         send_payment_receipt(payment)
         messages.success(request, "Payment confirmed. Jazakumullahu khairan.")

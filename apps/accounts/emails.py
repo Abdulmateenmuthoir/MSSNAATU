@@ -1,4 +1,7 @@
 import logging
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -10,12 +13,40 @@ logger = logging.getLogger(__name__)
 def _send(subject, text_template, html_template, context, to_email):
     text_body = render_to_string(text_template, context)
     html_body = render_to_string(html_template, context)
-    message = EmailMultiAlternatives(
-        subject=subject,
-        body=text_body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[to_email],
-    )
+    if settings.BREVO_API_KEY and settings.BREVO_SENDER_EMAIL:
+        payload = {
+            "sender": {"name": settings.BREVO_SENDER_NAME, "email": settings.BREVO_SENDER_EMAIL},
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "htmlContent": html_body,
+            "textContent": text_body,
+        }
+        request = Request(
+            "https://api.brevo.com/v3/smtp/email",
+            data=json.dumps(payload).encode(),
+            headers={
+                "api-key": settings.BREVO_API_KEY,
+                "accept": "application/json",
+                "content-type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=30) as response:
+                return response.status in (200, 201, 202)
+        except HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")
+            logger.error("Brevo rejected email to %s (HTTP %s): %s", to_email, exc.code, detail[:300])
+            return False
+        except (URLError, TimeoutError, OSError):
+            logger.exception("Brevo could not send email to %s", to_email)
+            return False
+
+    if not settings.EMAIL_HOST:
+        logger.error("Email not sent to %s: configure Brevo API credentials or EMAIL_HOST.", to_email)
+        return False
+
+    message = EmailMultiAlternatives(subject, text_body, settings.DEFAULT_FROM_EMAIL, [to_email])
     message.attach_alternative(html_body, "text/html")
     try:
         message.send(fail_silently=False)

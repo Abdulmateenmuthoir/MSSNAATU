@@ -5,23 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ site_name }}{% endblock %}</title>
   <meta name="description" content="{% block description %}The official home of the Muslim Students' Society of Nigeria, Abiola Ajimobi Technical University, Ibadan.{% endblock %}">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f1013" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff">
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:title" content="{% block og_title %}{{ site_name }}{% endblock %}">
   <meta property="og:description" content="{% block og_description %}Knowledge. Character. Service.{% endblock %}">
   <meta property="og:type" content="website">
-  <script>
-    (function () {
-      try {
-        var saved = localStorage.getItem("mssn-theme");
-        var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        document.documentElement.setAttribute("data-theme", theme);
-      } catch (error) {
-        document.documentElement.setAttribute("data-theme", "light");
-      }
-    })();
-  </script>
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta name="twitter:card" content="{% block twitter_card %}summary{% endblock %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">

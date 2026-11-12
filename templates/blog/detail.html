@@ -4,6 +4,13 @@
 {% block description %}{{ post.excerpt }}{% endblock %}
 {% block og_title %}{{ post.title }}{% endblock %}
 {% block og_description %}{{ post.excerpt }}{% endblock %}
+{% block twitter_card %}{% if post.cover %}summary_large_image{% else %}summary{% endif %}{% endblock %}
+{% block extra_head %}
+  {% if post.cover %}
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.cover.url }}">
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.cover.url }}">
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 <article>
@@ -43,8 +50,15 @@
       <div>
         <div class="prose-mssn max-w-prose">{{ post.content|markdownify }}</div>
 
-        <div class="mt-12 flex flex-wrap items-center justify-between gap-4 border-y border-line py-5">
-          <p class="text-xs font-semibold text-muted">Published {{ post.published_at|date:"j F Y" }} · {{ post.views }} view{{ post.views|pluralize }}</p>
+        <div class="mt-12 flex flex-col gap-4 border-y border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2 rounded-xl bg-brandsoft px-4 py-2.5 text-brand">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></svg>
+              <span class="font-display text-xl font-semibold">{{ post.views }}</span>
+              <span class="text-[10px] font-bold uppercase tracking-[0.1em]">views</span>
+            </div>
+            <p class="text-xs font-semibold text-muted">Published {{ post.published_at|date:"j F Y" }}</p>
+          </div>
           <div class="flex items-center gap-2">
             <span class="text-[11px] font-bold uppercase tracking-[0.12em] text-muted">Share</span>
             <a href="https://wa.me/?text={{ post.title|urlencode }}%20{{ request.build_absolute_uri }}" target="_blank" rel="noopener" class="btn-icon h-9 w-9" aria-label="Share on WhatsApp"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1121 11.5z"/><path d="M8.5 8.8c.3 2.8 2.4 4.9 5.2 5.2l1.2-1.1 1.8.8c-.2 1.2-1.2 2-2.4 2-3.9-.2-7-3.3-7.2-7.2 0-1.2.8-2.2 2-2.4l.8 1.8-1.4.9z" stroke-linejoin="round"/></svg></a>

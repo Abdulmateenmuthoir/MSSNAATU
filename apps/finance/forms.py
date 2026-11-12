@@ -1,7 +1,27 @@
 from django import forms
 from django.utils import timezone
+from decimal import Decimal
 
 from .models import DuesCycle
+
+
+class DuesPaymentForm(forms.Form):
+    amount = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        min_value=Decimal("0.01"),
+        widget=forms.NumberInput(attrs={"class": "field-input", "step": "0.01"}),
+    )
+
+    def __init__(self, *args, minimum=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.minimum = minimum or Decimal("0.01")
+
+    def clean_amount(self):
+        amount = self.cleaned_data["amount"]
+        if amount < self.minimum:
+            raise forms.ValidationError(f"Enter at least ₦{self.minimum:,.2f}.")
+        return amount
 
 
 class DuesCycleForm(forms.ModelForm):
@@ -17,6 +37,8 @@ class DuesCycleForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["amount"].label = "Minimum dues payment (NGN)"
+        self.fields["amount"].help_text = "Students may pay this minimum or any larger amount."
         for field in self.fields.values():
             if isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs.setdefault("class", "checkbox")

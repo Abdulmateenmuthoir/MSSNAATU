@@ -32,6 +32,13 @@ def event_list(request):
         events = events.filter(Q(title__icontains=query) | Q(summary__icontains=query) | Q(venue__icontains=query))
     paginator = Paginator(events, 9)
     page = paginator.get_page(request.GET.get("page"))
+    past_highlights = (
+        Event.objects.filter(is_published=True, starts_at__lt=now)
+        .exclude(flyer="")
+        .order_by("-starts_at")[:3]
+        if show == "upcoming" and not query
+        else Event.objects.none()
+    )
     query_params = request.GET.copy()
     query_params.pop("page", None)
     return render(
@@ -43,6 +50,7 @@ def event_list(request):
             "query": query,
             "query_string": query_params.urlencode(),
             "featured": page.object_list[0] if page.object_list else None,
+            "past_highlights": past_highlights,
         },
     )
 

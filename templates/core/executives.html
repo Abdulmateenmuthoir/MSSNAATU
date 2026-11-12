@@ -32,7 +32,7 @@
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {% for person in executives %}
         <article class="group card overflow-hidden">
-          <div class="relative aspect-[4/3] overflow-hidden bg-[#f4f4f2] dark:bg-[#202328]">
+          <div class="relative aspect-[4/3] overflow-hidden bg-[#f4f4f2] ">
             {% if person.photo %}
               <img src="{{ person.photo.url }}" alt="{{ person.full_name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]">
             {% else %}

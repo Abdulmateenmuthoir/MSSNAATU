@@ -10,7 +10,7 @@
 <div class="border-b border-line bg-surface">
   <div class="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
     <a href="{% url 'dashboard:home' %}" class="flex items-center gap-2 text-xs font-bold text-muted hover:text-ink"><span aria-hidden="true">←</span> Back to dashboard</a>
-    <div class="flex items-center gap-2">{% include "partials/theme_toggle.html" %}<a href="{% url 'core:home' %}" class="text-xs font-bold text-muted hover:text-ink">Public site</a></div>
+    <div class="flex items-center gap-2"><a href="{% url 'core:home' %}" class="text-xs font-bold text-muted hover:text-ink">Public site</a></div>
   </div>
 </div>
 
@@ -47,11 +47,17 @@
             <a href="{% url 'finance:receipt' payment.reference %}" class="btn-gold mt-5 w-full">View and print receipt</a>
           {% elif pending_payment %}
             <p class="mt-6 rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-sm text-[#a9bdb3]">Payment reference <span class="font-mono text-white">{{ pending_payment.reference }}</span> is awaiting confirmation. If you did not complete checkout, you can try again below.</p>
-            <form method="post" action="{% url 'finance:pay' %}" class="mt-4">{% csrf_token %}<button type="submit" {% if not paystack_ready %}disabled{% endif %} class="btn-gold w-full disabled:cursor-not-allowed disabled:opacity-50">Continue payment</button></form>
+            <form method="post" action="{% url 'finance:pay' %}" class="mt-4">{% csrf_token %}<input type="hidden" name="amount" value="{{ pending_payment.amount }}"><button type="submit" {% if not paystack_ready %}disabled{% endif %} class="btn-gold w-full disabled:cursor-not-allowed disabled:opacity-50">Continue ₦{{ pending_payment.amount|floatformat:2|intcomma }} payment</button></form>
           {% else %}
             <form method="post" action="{% url 'finance:pay' %}" class="mt-6">
               {% csrf_token %}
-              <button type="submit" {% if not paystack_ready %}disabled{% endif %} class="btn-gold w-full disabled:cursor-not-allowed disabled:opacity-50">Pay ₦{{ cycle.amount|floatformat:0|intcomma }} securely</button>
+              <label for="dues-amount" class="mb-2 block text-sm font-bold text-white">Choose an amount to pay</label>
+              <div class="relative">
+                <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-bold text-ink">₦</span>
+                <input id="dues-amount" name="amount" type="number" min="{{ cycle.amount }}" step="0.01" value="{{ cycle.amount }}" required {% if not paystack_ready %}disabled{% endif %} class="field-input !border-white/30 !bg-white !pl-10 !text-ink">
+              </div>
+              <p class="mt-2 text-xs text-[#d9e5dc]">Minimum payment: <strong class="text-white">₦{{ cycle.amount|floatformat:2|intcomma }}</strong>. You may pay more.</p>
+              <button type="submit" {% if not paystack_ready %}disabled{% endif %} class="btn-gold mt-4 w-full text-white disabled:cursor-not-allowed disabled:opacity-50">Pay securely with Paystack</button>
             </form>
             <p class="mt-3 text-center text-[10px] text-[#8ea79a]">Secure payment powered by Paystack · card, bank transfer or USSD</p>
             {% if not paystack_ready %}<p class="mt-3 text-center text-[11px] text-[#d8b45a]">Online payment will be available when Paystack is configured.</p>{% endif %}
