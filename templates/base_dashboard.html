@@ -64,6 +64,10 @@
           <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 20a6.2 6.2 0 0112.4 0M16 5.5a3.2 3.2 0 010 5M18 20a6 6 0 00-2-4.5" stroke-linecap="round"/></svg>
           Students
         </a>
+        <a href="{% url 'volunteeradmin:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'volunteeradmin' %}is-active{% endif %}">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-4.2-7-9.2A4.3 4.3 0 0112 9a4.3 4.3 0 017 2.8c0 5-7 9.2-7 9.2z" stroke-linejoin="round"/><path d="M12 3v3M4.5 5.5l2 2M19.5 5.5l-2 2" stroke-linecap="round"/></svg>
+          Volunteer applications
+        </a>
         {% endif %}
         {% if user.can_manage_content %}
         <a href="{% url 'newsroom:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'newsroom' %}is-active{% endif %}">

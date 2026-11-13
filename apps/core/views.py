@@ -3,20 +3,30 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.http import FileResponse, Http404, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 from mimetypes import guess_type
 from pathlib import Path
 
+from apps.accounts.decorators import role_required
 from apps.accounts.models import ROLE_MEMBER, Student
 from apps.blog.models import Post
 from apps.events.models import Event, Registration
 from apps.finance.models import DuesCycle, Payment
 from apps.library.models import PastQuestion
 
-from .forms import ContactForm, NewsletterForm
-from .models import Announcement, Committee, Executive, Faculty, NewsletterSubscriber
+from .forms import ContactForm, NewsletterForm, VolunteerApplicationForm
+from .models import (
+    VOLUNTEER_STATUS_CHOICES,
+    Announcement,
+    Committee,
+    Executive,
+    Faculty,
+    NewsletterSubscriber,
+    VolunteerApplication,
+)
 
 
 def public_media(request, path):
@@ -162,6 +172,85 @@ def newsletter_subscribe(request):
         subscriber.save(update_fields=["name", "is_active"])
     messages.success(request, "You’re subscribed to useful MSSN AATU updates.")
     return redirect(f"{reverse('core:home')}#newsletter")
+
+
+@login_required
+def volunteer_apply(request):
+    team = request.POST.get("team", "") if request.method == "POST" else ""
+    existing = None
+    if team:
+        existing = VolunteerApplication.objects.filter(student=request.user, team=team).first()
+    form = VolunteerApplicationForm(request.POST or None, request.FILES or None, instance=existing)
+    if request.method == "POST" and form.is_valid():
+        old_file = existing.work_sample if existing else None
+        application = form.save(commit=False)
+        application.student = request.user
+        application.save()
+        if old_file and application.work_sample and old_file.name != application.work_sample.name:
+            old_file.delete(save=False)
+        messages.success(request, "Your volunteer application has been saved.")
+        return redirect("core:volunteer")
+    return render(
+        request,
+        "core/volunteer.html",
+        {
+            "form": form,
+            "applications": request.user.volunteer_applications.all(),
+        },
+    )
+
+
+@role_required()
+def volunteer_applications(request):
+    applications = VolunteerApplication.objects.select_related(
+        "student", "student__faculty", "student__department"
+    )
+    team = request.GET.get("team", "")
+    status = request.GET.get("status", "")
+    if team:
+        applications = applications.filter(team=team)
+    if status:
+        applications = applications.filter(status=status)
+    return render(
+        request,
+        "dashboard/volunteers/list.html",
+        {
+            "applications": applications,
+            "team_choices": VolunteerApplication._meta.get_field("team").choices,
+            "status_choices": VOLUNTEER_STATUS_CHOICES,
+            "selected_team": team,
+            "selected_status": status,
+            "total": applications.count(),
+        },
+    )
+
+
+@role_required()
+def volunteer_work_download(request, pk):
+    application = get_object_or_404(VolunteerApplication, pk=pk)
+    if not application.work_sample:
+        raise Http404("No work sample was attached.")
+    try:
+        file_handle = application.work_sample.open("rb")
+    except FileNotFoundError:
+        raise Http404("This work sample is no longer available.")
+    filename = f"volunteer-work-{application.pk}{Path(application.work_sample.name).suffix}"
+    return FileResponse(file_handle, as_attachment=True, filename=filename)
+
+
+@role_required()
+@require_POST
+def volunteer_application_status(request, pk):
+    application = get_object_or_404(VolunteerApplication, pk=pk)
+    status = request.POST.get("status")
+    valid_statuses = {value for value, _label in VOLUNTEER_STATUS_CHOICES}
+    if status not in valid_statuses:
+        messages.error(request, "Choose a valid application status.")
+    else:
+        application.status = status
+        application.save(update_fields=["status", "updated_at"])
+        messages.success(request, "Application status updated.")
+    return redirect("volunteeradmin:list")
 
 
 @login_required

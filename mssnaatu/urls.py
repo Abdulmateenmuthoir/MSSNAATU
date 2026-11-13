@@ -26,6 +26,7 @@ urlpatterns = [
     path("dashboard/programmes/", include("apps.events.program_dashboard_urls")),
     path("dashboard/library/", include("apps.library.dashboard_urls")),
     path("dashboard/finance/", include("apps.finance.dashboard_urls")),
+    path("dashboard/volunteers/", include("apps.core.volunteer_dashboard_urls")),
 ]
 
 handler403 = "apps.core.views.error_403"

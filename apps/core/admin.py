@@ -9,6 +9,7 @@ from .models import (
     Executive,
     Faculty,
     NewsletterSubscriber,
+    VolunteerApplication,
 )
 
 
@@ -62,3 +63,11 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     list_display = ("email", "name", "is_active", "subscribed_at")
     list_filter = ("is_active", "subscribed_at")
     search_fields = ("email", "name")
+
+
+@admin.register(VolunteerApplication)
+class VolunteerApplicationAdmin(admin.ModelAdmin):
+    list_display = ("student", "team", "status", "created_at")
+    list_filter = ("team", "status", "created_at")
+    search_fields = ("student__first_name", "student__last_name", "student__matric_no", "student__email")
+    readonly_fields = ("student", "created_at", "updated_at")

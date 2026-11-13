@@ -1,5 +1,13 @@
+import os
+import uuid
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.deconstruct import deconstructible
 from django.utils.text import slugify
 
 LEVEL_CHOICES = [
@@ -13,6 +21,48 @@ LEVEL_CHOICES = [
 ]
 
 EXECUTIVE_ICON_CHOICES = [("male", "Male profile icon"), ("female", "Female profile icon")]
+
+VOLUNTEER_TEAM_CHOICES = [
+    ("content_writer", "Content Writer / Article Writer"),
+    ("graphics_designer", "Graphics Designer"),
+    ("videographer", "Videographer"),
+    ("video_editor", "Video Editor"),
+    ("business_committee", "Business Committee"),
+    ("it_media_team", "IT and Media Team"),
+    ("educational_committee", "Educational Committee Tutor"),
+]
+VOLUNTEER_COURSE_CHOICES = [
+    ("GET 201", "GET 201"),
+    ("GET 205", "GET 205"),
+    ("GET 207", "GET 207"),
+    ("MTH 201", "MTH 201"),
+]
+VOLUNTEER_STATUS_CHOICES = [
+    ("pending", "Pending review"),
+    ("reviewing", "Under review"),
+    ("accepted", "Accepted"),
+    ("declined", "Declined"),
+]
+VOLUNTEER_WORK_MAX_BYTES = 10 * 1024 * 1024
+VOLUNTEER_WORK_EXTENSIONS = ["pdf", "doc", "docx", "ppt", "pptx", "zip", "jpg", "jpeg", "png", "webp", "mp4", "mov"]
+
+
+def validate_volunteer_work_size(file):
+    if file.size > VOLUNTEER_WORK_MAX_BYTES:
+        raise ValidationError("The work sample must be 10 MB or smaller.")
+
+
+def volunteer_work_path(instance, filename):
+    extension = os.path.splitext(filename)[1].lower()
+    return f"volunteer-work/{uuid.uuid4().hex}{extension}"
+
+
+@deconstructible
+class VolunteerWorkStorage(FileSystemStorage):
+    """Keep applicant work samples outside publicly served media files."""
+
+    def __init__(self):
+        super().__init__(location=settings.BASE_DIR / "private_uploads")
 
 
 class Faculty(models.Model):
@@ -161,6 +211,45 @@ class NewsletterSubscriber(models.Model):
 
     def __str__(self):
         return self.name or self.email
+
+
+class VolunteerApplication(models.Model):
+    PENDING = "pending"
+    REVIEWING = "reviewing"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="volunteer_applications",
+    )
+    team = models.CharField(max_length=32, choices=VOLUNTEER_TEAM_CHOICES)
+    courses = models.JSONField(default=list, blank=True)
+    work_sample = models.FileField(
+        upload_to=volunteer_work_path,
+        storage=VolunteerWorkStorage(),
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=VOLUNTEER_WORK_EXTENSIONS),
+            validate_volunteer_work_size,
+        ],
+    )
+    publication_url = models.URLField(max_length=500, blank=True)
+    has_no_publication = models.BooleanField(default=False)
+    message = models.TextField(max_length=1200, blank=True)
+    status = models.CharField(max_length=12, choices=VOLUNTEER_STATUS_CHOICES, default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["student", "team"], name="unique_volunteer_application_per_team")
+        ]
+
+    def __str__(self):
+        return f"{self.student.full_name} — {self.get_team_display()}"
 
 
 def society_url():
