@@ -341,4 +341,64 @@
       if (!details.contains(event.target)) details.removeAttribute("open");
     });
   });
+
+  /* ----------------------------------------------------------------
+     Volunteer team → role → supporting details
+     ---------------------------------------------------------------- */
+  var volunteerTeam = doc.querySelector("[data-volunteer-team]");
+  var volunteerRole = doc.querySelector("[data-volunteer-role]");
+  if (volunteerTeam && volunteerRole) {
+    var roleByTeam = {
+      it_media_team: ["graphics_designer", "videographer", "video_editor", "it_content_creator"],
+      educational_committee: ["tutor"],
+      editorial_board: ["editorial_content_creator", "article_writer"]
+    };
+    var roleLabels = {
+      graphics_designer: "Graphics Designer",
+      videographer: "Video Grapher",
+      video_editor: "Video Editor",
+      it_content_creator: "Content Creator",
+      tutor: "Tutor",
+      editorial_content_creator: "Content Creator",
+      article_writer: "Article Writer"
+    };
+    var courseFields = doc.querySelector("[data-volunteer-courses]");
+    var publicationFields = doc.querySelector("[data-volunteer-publication]");
+    var workSample = doc.querySelector("[data-volunteer-work-sample]");
+    var workHelp = doc.querySelector("[data-volunteer-work-help]");
+    var publicationUrl = doc.getElementById("id_publication_url");
+    var noPublication = doc.getElementById("id_has_no_publication");
+
+    function syncVolunteerFields(resetRole) {
+      var allowedRoles = roleByTeam[volunteerTeam.value] || [];
+      var selectedRole = resetRole ? "" : volunteerRole.value;
+      volunteerRole.replaceChildren(new Option(
+        allowedRoles.length ? "Select a role" : "Choose a team first",
+        ""
+      ));
+      allowedRoles.forEach(function (role) {
+        volunteerRole.add(new Option(roleLabels[role], role));
+      });
+      volunteerRole.value = allowedRoles.indexOf(selectedRole) !== -1 ? selectedRole : "";
+      var role = volunteerRole.value;
+      if (courseFields) courseFields.hidden = role !== "tutor";
+      if (publicationFields) publicationFields.hidden = role !== "article_writer";
+      if (workSample) {
+        workSample.required = role === "graphics_designer" && workSample.dataset.existingWork !== "true";
+      }
+      if (workHelp) {
+        workHelp.textContent = role === "graphics_designer"
+          ? "Required for Graphics Designer applicants. Maximum size: 10 MB. Accepted: PDF, Office documents, ZIP, images, MP4 or MOV."
+          : "Optional for this role. Maximum size: 10 MB. Accepted: PDF, Office documents, ZIP, images, MP4 or MOV.";
+      }
+      if (publicationUrl) {
+        publicationUrl.required = role === "article_writer" && !(noPublication && noPublication.checked);
+      }
+    }
+
+    volunteerTeam.addEventListener("change", function () { syncVolunteerFields(true); });
+    volunteerRole.addEventListener("change", function () { syncVolunteerFields(false); });
+    if (noPublication) noPublication.addEventListener("change", function () { syncVolunteerFields(false); });
+    syncVolunteerFields(false);
+  }
 })();

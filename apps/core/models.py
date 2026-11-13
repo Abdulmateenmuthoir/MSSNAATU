@@ -23,13 +23,32 @@ LEVEL_CHOICES = [
 EXECUTIVE_ICON_CHOICES = [("male", "Male profile icon"), ("female", "Female profile icon")]
 
 VOLUNTEER_TEAM_CHOICES = [
-    ("content_writer", "Content Writer / Article Writer"),
-    ("graphics_designer", "Graphics Designer"),
-    ("videographer", "Videographer"),
-    ("video_editor", "Video Editor"),
-    ("business_committee", "Business Committee"),
     ("it_media_team", "IT and Media Team"),
-    ("educational_committee", "Educational Committee Tutor"),
+    ("educational_committee", "Educational Committee"),
+    ("editorial_board", "Editorial Board"),
+    ("business_committee", "Business Committee (legacy application)"),
+]
+VOLUNTEER_FORM_TEAM_CHOICES = VOLUNTEER_TEAM_CHOICES[:3]
+VOLUNTEER_ROLE_CHOICES_BY_TEAM = {
+    "it_media_team": [
+        ("graphics_designer", "Graphics Designer"),
+        ("videographer", "Video Grapher"),
+        ("video_editor", "Video Editor"),
+        ("it_content_creator", "Content Creator"),
+    ],
+    "educational_committee": [("tutor", "Tutor")],
+    "editorial_board": [
+        ("editorial_content_creator", "Content Creator"),
+        ("article_writer", "Article Writer"),
+    ],
+    "business_committee": [("legacy_role", "Legacy application")],
+}
+VOLUNTEER_ROLE_CHOICES = [
+    choice for role_choices in VOLUNTEER_ROLE_CHOICES_BY_TEAM.values() for choice in role_choices
+]
+VOLUNTEER_ROLE_GROUP_CHOICES = [
+    (label, VOLUNTEER_ROLE_CHOICES_BY_TEAM[team])
+    for team, label in VOLUNTEER_FORM_TEAM_CHOICES
 ]
 VOLUNTEER_COURSE_CHOICES = [
     ("GET 201", "GET 201"),
@@ -225,6 +244,7 @@ class VolunteerApplication(models.Model):
         related_name="volunteer_applications",
     )
     team = models.CharField(max_length=32, choices=VOLUNTEER_TEAM_CHOICES)
+    team_role = models.CharField(max_length=32, choices=VOLUNTEER_ROLE_CHOICES, default="legacy_role")
     courses = models.JSONField(default=list, blank=True)
     work_sample = models.FileField(
         upload_to=volunteer_work_path,
@@ -245,7 +265,10 @@ class VolunteerApplication(models.Model):
     class Meta:
         ordering = ["-created_at"]
         constraints = [
-            models.UniqueConstraint(fields=["student", "team"], name="unique_volunteer_application_per_team")
+            models.UniqueConstraint(
+                fields=["student", "team", "team_role"],
+                name="unique_volunteer_application_per_team_role",
+            )
         ]
 
     def __str__(self):

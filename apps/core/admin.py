@@ -67,7 +67,7 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
 
 @admin.register(VolunteerApplication)
 class VolunteerApplicationAdmin(admin.ModelAdmin):
-    list_display = ("student", "team", "status", "created_at")
+    list_display = ("student", "team", "team_role", "status", "created_at")
     list_filter = ("team", "status", "created_at")
     search_fields = ("student__first_name", "student__last_name", "student__matric_no", "student__email")
     readonly_fields = ("student", "created_at", "updated_at")

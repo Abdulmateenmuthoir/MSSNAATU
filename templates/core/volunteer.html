@@ -23,9 +23,14 @@
         {{ form.team }}{{ form.team.errors }}
       </div>
 
-      <fieldset>
-        <legend class="text-sm font-semibold text-ink">Courses you can tutor</legend>
-        <p class="mt-1 text-xs text-muted">Complete this if you are applying to tutor for the Educational Committee.</p>
+      <div>
+        <label for="id_team_role" class="mb-2 block text-sm font-semibold text-ink">Which role are you applying for? <span class="text-danger">*</span></label>
+        {{ form.team_role }}{{ form.team_role.errors }}
+      </div>
+
+      <fieldset data-volunteer-courses hidden>
+        <legend class="text-sm font-semibold text-ink">Courses you can tutor <span class="text-danger">*</span></legend>
+        <p class="mt-1 text-xs text-muted">Select every course you can support through the Educational Committee.</p>
         <div class="mt-3 grid gap-2 sm:grid-cols-2">{% for checkbox in form.courses %}<label class="flex items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-sm text-ink">{{ checkbox.tag }}<span>{{ checkbox.choice_label }}</span></label>{% endfor %}</div>
         {{ form.courses.errors }}
       </fieldset>
@@ -33,18 +38,18 @@
       <div>
         <label for="id_work_sample" class="mb-2 block text-sm font-semibold text-ink">Past work / proof of work</label>
         {{ form.work_sample }}
-        <p class="mt-2 text-xs leading-5 text-muted">Required for Graphics Designer applicants; optional for other teams. Maximum size: 10 MB. Accepted: PDF, Office documents, ZIP, images, MP4 or MOV.</p>
+        <p data-volunteer-work-help class="mt-2 text-xs leading-5 text-muted">Choose a role to see whether a work sample is required. Maximum size: 10 MB. Accepted: PDF, Office documents, ZIP, images, MP4 or MOV.</p>
         {% if form.instance.work_sample %}<p class="mt-2 text-xs font-semibold text-brand">A work sample is already attached to this application. Uploading another file replaces it.</p>{% endif %}
         {{ form.work_sample.errors }}
       </div>
 
-      <div>
+      <div data-volunteer-publication hidden>
         <label for="id_publication_url" class="mb-2 block text-sm font-semibold text-ink">Previous publication link</label>
         {{ form.publication_url }}
-        <p class="mt-2 text-xs text-muted">Content / Article Writer applicants should add a publication link or select “No publication yet”.</p>
+        <p class="mt-2 text-xs text-muted">Add a link to an article you have published, or select “No publication yet”.</p>
         {{ form.publication_url.errors }}
+        <label class="mt-3 flex items-center gap-2 text-sm text-ink">{{ form.has_no_publication }}<span>{{ form.has_no_publication.label }}</span></label>
       </div>
-      <label class="flex items-center gap-2 text-sm text-ink">{{ form.has_no_publication }}<span>{{ form.has_no_publication.label }}</span></label>
 
       <div><label for="id_message" class="mb-2 block text-sm font-semibold text-ink">A little about your interest <span class="font-normal text-muted">(optional)</span></label>{{ form.message }}{{ form.message.errors }}</div>
       <button type="submit" class="btn-primary w-full justify-center sm:w-auto">Submit volunteer application <span aria-hidden="true">→</span></button>
@@ -55,7 +60,7 @@
       <h2 class="font-display text-xl font-semibold text-ink">Your applications</h2>
       <div class="mt-4 space-y-3">{% for application in applications %}
         <article class="card flex flex-wrap items-center justify-between gap-3 p-4">
-          <div><p class="font-semibold text-ink">{{ application.get_team_display }}</p><p class="mt-1 text-xs text-muted">Submitted {{ application.created_at|date:"j M Y" }}{% if application.courses %} · {{ application.courses|join:", " }}{% endif %}</p></div>
+          <div><p class="font-semibold text-ink">{{ application.get_team_display }} · {{ application.get_team_role_display }}</p><p class="mt-1 text-xs text-muted">Submitted {{ application.created_at|date:"j M Y" }}{% if application.courses %} · {{ application.courses|join:", " }}{% endif %}</p></div>
           <span class="badge-{% if application.status == 'accepted' %}green{% elif application.status == 'declined' %}red{% else %}gold{% endif %}">{{ application.get_status_display }}</span>
         </article>
       {% endfor %}</div>

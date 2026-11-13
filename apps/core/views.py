@@ -177,9 +177,12 @@ def newsletter_subscribe(request):
 @login_required
 def volunteer_apply(request):
     team = request.POST.get("team", "") if request.method == "POST" else ""
+    team_role = request.POST.get("team_role", "") if request.method == "POST" else ""
     existing = None
-    if team:
-        existing = VolunteerApplication.objects.filter(student=request.user, team=team).first()
+    if team and team_role:
+        existing = VolunteerApplication.objects.filter(
+            student=request.user, team=team, team_role=team_role
+        ).first()
     form = VolunteerApplicationForm(request.POST or None, request.FILES or None, instance=existing)
     if request.method == "POST" and form.is_valid():
         old_file = existing.work_sample if existing else None

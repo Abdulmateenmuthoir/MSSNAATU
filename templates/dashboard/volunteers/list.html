@@ -20,6 +20,7 @@
       <div class="min-w-0">
         <p class="eyebrow">{{ application.get_team_display }}</p>
         <h2 class="mt-1 font-display text-xl font-semibold text-ink">{{ application.student.full_name }}</h2>
+        <p class="mt-1 text-sm font-semibold text-brand">{{ application.get_team_role_display }}</p>
         <p class="mt-1 text-xs text-muted">{{ application.student.matric_no }} · {{ application.student.email }}{% if application.student.phone %} · {{ application.student.phone }}{% endif %}</p>
         <p class="mt-1 text-xs text-muted">{{ application.student.academic_summary }} · Submitted {{ application.created_at|date:"j F Y, g:i A" }}</p>
       </div>
