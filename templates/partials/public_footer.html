@@ -4,8 +4,8 @@
   <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#123d30] blur-3xl " aria-hidden="true"></div>
 
   <div class="container-page relative py-16">
-    <div class="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
-      <div>
+    <div class="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr] lg:gap-12">
+      <div class="col-span-2 lg:col-span-1">
         <a href="{% url 'core:home' %}" class="flex items-center gap-3">
           <img src="{% static 'img/favicon.ico' %}" alt="MSSN AATU emblem" class="h-10 w-10 shrink-0 object-contain">
           <span class="leading-none">
