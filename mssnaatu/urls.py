@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from apps.events import views as event_views
 from apps.core.views import public_media
+from apps.finance import views as finance_views
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
@@ -14,6 +15,10 @@ urlpatterns = [
     path("programmes/", event_views.programme_list, name="programmes_list"),
     path("library/", include("apps.library.urls")),
     path("dues/", include("apps.finance.urls")),
+    path("donate/", finance_views.donate, name="donate"),
+    path("donate/initialize/", finance_views.initialize_donation_view, name="donate_initialize"),
+    path("donate/callback/", finance_views.donation_callback, name="donate_callback"),
+    path("donate/receipt/<str:reference>/", finance_views.donation_result, name="donation_result"),
     path("dashboard/", include("apps.core.dashboard_urls")),
     path("dashboard/students/", include("apps.accounts.dashboard_urls")),
     path("dashboard/news/", include("apps.blog.dashboard_urls")),

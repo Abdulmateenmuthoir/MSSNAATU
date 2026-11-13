@@ -30,6 +30,12 @@
 
   {% block footer %}{% include "partials/public_footer.html" %}{% endblock %}
 
+  {% block floating_donate %}
+    {% if request.resolver_match.url_name != 'donate' and request.resolver_match.url_name != 'donation_result' %}
+      <a href="{% url 'donate' %}" class="fixed right-0 top-1/2 z-40 -translate-y-1/2 rounded-l-xl bg-emerald-600 px-3 py-4 text-xs font-extrabold tracking-wide text-white shadow-lg transition hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300 sm:px-4 sm:py-5" style="writing-mode:vertical-rl" aria-label="Donate now">Donate Now</a>
+    {% endif %}
+  {% endblock %}
+
   <script src="{% static 'js/app.js' %}" defer></script>
   {% block extra_js %}{% endblock %}
 </body>

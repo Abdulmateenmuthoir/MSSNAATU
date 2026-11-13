@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Donation status · {{ site_name }}{% endblock %}
+{% block content %}
+<section class="container-page py-16 sm:py-24"><div class="card mx-auto max-w-xl p-8 text-center sm:p-12">
+  <p class="eyebrow">Donation status</p>
+  {% if donation.status == 'success' %}<h1 class="mt-4 display-md text-ink">Thank you for your support.</h1><p class="mt-3 text-sm leading-7 text-muted">Your donation of <strong class="text-ink">₦{{ donation.amount|floatformat:0|intcomma }}</strong> has been confirmed.{% if donation.receipt_sent %} A receipt has been sent to {{ donation.email }}.{% else %} Email delivery is unavailable right now; your donation is still confirmed. Contact the office if you need a receipt.{% endif %}</p>
+  {% else %}<h1 class="mt-4 display-md text-ink">Payment not confirmed</h1><p class="mt-3 text-sm leading-7 text-muted">We could not confirm this donation. If your account was charged, contact the Office of the Public Relations Officer with reference <span class="font-mono text-ink">{{ donation.reference }}</span>.</p>{% endif %}
+  <a href="{% url 'core:home' %}" class="btn-primary mt-7">Return to the homepage <span aria-hidden="true">→</span></a>
+</div></section>
+{% endblock %}

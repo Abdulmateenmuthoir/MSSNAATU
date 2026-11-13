@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DuesCycle, Payment, ReminderLog
+from .models import Donation, DuesCycle, Payment, ReminderLog
 
 
 @admin.register(DuesCycle)
@@ -21,3 +21,11 @@ class PaymentAdmin(admin.ModelAdmin):
 class ReminderLogAdmin(admin.ModelAdmin):
     list_display = ("student", "cycle", "sent_at", "success")
     list_filter = ("success", "cycle")
+
+
+@admin.register(Donation)
+class DonationAdmin(admin.ModelAdmin):
+    list_display = ("donor_name", "email", "cause", "amount", "status", "paid_at")
+    list_filter = ("status", "cause")
+    search_fields = ("donor_name", "email", "reference", "gateway_reference")
+    readonly_fields = ("reference", "gateway_reference", "created_at", "paid_at")

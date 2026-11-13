@@ -1,22 +1,23 @@
 import csv
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.accounts.decorators import role_required
-from apps.accounts.emails import send_dues_reminder, send_payment_receipt
+from apps.accounts.emails import send_donation_receipt, send_dues_reminder, send_payment_receipt
 from apps.accounts.models import ROLE_FINANCE, ROLE_MEMBER, Student
 from apps.core.models import LEVEL_CHOICES
 
 from .forms import DuesCycleForm, DuesPaymentForm
-from .models import DuesCycle, Payment, ReminderLog
-from .services import initialize_transaction, is_configured, verify_transaction
+from .models import Donation, DuesCycle, Payment, ReminderLog
+from .services import initialize_donation, initialize_transaction, is_configured, verify_transaction
 
 
 def _payments_for(cycle):
@@ -73,10 +74,13 @@ def initialize_payment(request):
         messages.error(request, "Paystack is not configured yet. Please check back after the Finance Officer enables online payment.")
         return redirect("finance:dues")
     pending = request.user.payments.filter(cycle=cycle, status=Payment.PENDING, gateway="paystack").order_by("-created_at").first()
-    form = DuesPaymentForm(request.POST, minimum=cycle.amount)
+    payment_data = request.POST.copy()
+    if payment_data.get("custom_amount", "").strip():
+        payment_data["amount"] = payment_data["custom_amount"]
+    form = DuesPaymentForm(payment_data, minimum=cycle.amount)
     if form.is_valid():
         amount = form.cleaned_data["amount"]
-    elif pending and not request.POST.get("amount"):
+    elif pending and not request.POST.get("amount") and not request.POST.get("custom_amount", "").strip():
         amount = pending.amount
     else:
         messages.error(request, form.errors.get("amount", ["Enter a valid payment amount."])[0])
@@ -132,6 +136,76 @@ def receipt(request, reference):
         messages.error(request, "You do not have access to that receipt.")
         return redirect("finance:dues")
     return render(request, "finance/receipt.html", {"payment": payment})
+
+
+def donate(request):
+    return render(request, "finance/donate.html", {"paystack_ready": is_configured()})
+
+
+@require_POST
+def initialize_donation_view(request):
+    from decimal import Decimal, InvalidOperation
+
+    try:
+        amount = Decimal(request.POST.get("custom_amount") or request.POST.get("preset", ""))
+    except (InvalidOperation, TypeError):
+        messages.error(request, "Enter a valid donation amount.")
+        return redirect("donate")
+    if amount < Decimal("100") or amount > Decimal("10000000"):
+        messages.error(request, "Donations must be at least ₦100 and no more than ₦10,000,000.")
+        return redirect("donate")
+    email = request.POST.get("email", "").strip()
+    try:
+        validate_email(email)
+    except ValidationError:
+        messages.error(request, "Enter a valid email address for your receipt.")
+        return redirect("donate")
+    donor_name = request.POST.get("donor_name", "").strip()[:160]
+    allowed_causes = {"General Society Support", "Da'wah and Programmes", "Student Welfare", "Academic Support"}
+    cause = request.POST.get("cause", "General Society Support")
+    if cause not in allowed_causes:
+        cause = "General Society Support"
+    if not is_configured():
+        messages.error(request, "Online donations are temporarily unavailable. Please check back soon.")
+        return redirect("donate")
+    donation = Donation.objects.create(donor_name=donor_name, email=email, cause=cause, amount=amount)
+    url, error = initialize_donation(donation)
+    if url:
+        return redirect(url)
+    donation.status = Donation.FAILED
+    donation.save(update_fields=["status"])
+    messages.error(request, error or "The payment gateway is unavailable right now.")
+    return redirect("donate")
+
+
+def donation_callback(request):
+    reference = request.GET.get("reference") or request.GET.get("trxref")
+    if not reference:
+        messages.error(request, "The donation reference was missing.")
+        return redirect("donate")
+    donation = Donation.objects.filter(reference=reference).first()
+    if not donation:
+        messages.error(request, "We could not find that donation.")
+        return redirect("donate")
+    if donation.status != Donation.SUCCESS:
+        success, payload = verify_transaction(reference)
+        if success and payload.get("amount") == int(donation.amount * 100) and payload.get("currency") == "NGN":
+            donation.status = Donation.SUCCESS
+            donation.gateway_reference = payload.get("reference", reference)
+            donation.paid_at = timezone.now()
+            donation.receipt_sent = send_donation_receipt(donation)
+            donation.save(update_fields=["status", "gateway_reference", "paid_at", "receipt_sent"])
+            messages.success(request, "Your donation has been confirmed. Thank you for supporting MSSN AATU.")
+        else:
+            donation.status = Donation.FAILED
+            donation.save(update_fields=["status"])
+            messages.error(request, "We could not confirm this donation. Please contact the Public Relations Officer if you were charged.")
+    return redirect("donation_result", reference=donation.reference)
+
+
+def donation_result(request, reference):
+    donation = get_object_or_404(Donation, reference=reference)
+    return render(request, "finance/donation_result.html", {"donation": donation})
 
 
 # ---------------------------------------------------------------------------

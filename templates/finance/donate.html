@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Donate · {{ site_name }}{% endblock %}
+{% block description %}Support MSSN AATU's da'wah, student welfare and academic work with a secure donation.{% endblock %}
+{% block content %}
+<section class="container-page py-12 sm:py-16">
+  <div class="mx-auto max-w-3xl text-center">
+    <p class="eyebrow">Support the society</p>
+    <h1 class="mt-4 display-lg text-ink">Invest in the future of Muslim students.</h1>
+    <p class="mx-auto mt-5 max-w-2xl text-base leading-8 text-muted">Your contribution supports da'wah, student welfare and learning at Abiola Ajimobi Technical University.</p>
+    <blockquote class="mx-auto mt-7 max-w-2xl rounded-2xl border border-line bg-surface px-6 py-5 font-display text-sm italic leading-7 text-ink">“The example of those who spend their wealth in the way of Allah is like a seed of grain which grows seven spikes; in each spike is a hundred grains.”<br><span class="not-italic text-muted">— Surah Al-Baqarah (2:261)</span></blockquote>
+  </div>
+
+  <form method="post" action="{% url 'donate_initialize' %}" class="card mx-auto mt-10 max-w-3xl p-5 sm:p-8">
+    {% csrf_token %}
+    <div class="flex items-center gap-4"><span class="grid h-12 w-12 place-items-center rounded-2xl bg-brandsoft text-brand" aria-hidden="true">♥</span><div><h2 class="font-display text-xl font-semibold text-ink">Give online via Paystack</h2><p class="mt-1 text-xs text-muted">Secure checkout by card, bank transfer or USSD.</p></div></div>
+    <fieldset class="mt-7">
+      <legend class="text-xs font-bold uppercase tracking-wider text-muted">Select a donation amount</legend>
+      <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="preset" value="2000" checked><span class="block rounded-full border border-line px-3 py-3 text-center font-semibold text-ink transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-white">₦2,000</span></label>
+        <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="preset" value="5000"><span class="block rounded-full border border-line px-3 py-3 text-center font-semibold text-ink transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-white">₦5,000</span></label>
+        <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="preset" value="10000"><span class="block rounded-full border border-line px-3 py-3 text-center font-semibold text-ink transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-white">₦10,000</span></label>
+        <label class="cursor-pointer"><input class="peer sr-only" type="radio" name="preset" value="25000"><span class="block rounded-full border border-line px-3 py-3 text-center font-semibold text-ink transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-white">₦25,000</span></label>
+      </div>
+    </fieldset>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div><label for="donation-amount" class="mb-2 block text-sm font-semibold text-ink">Or enter a custom amount (₦)</label><input id="donation-amount" name="custom_amount" type="number" min="100" max="10000000" step="100" placeholder="Optional when a preset is selected" class="field-input"></div>
+      <div><label for="donation-cause" class="mb-2 block text-sm font-semibold text-ink">Designate your support</label><select id="donation-cause" name="cause" class="field-input"><option>General Society Support</option><option>Da'wah and Programmes</option><option>Student Welfare</option><option>Academic Support</option></select></div>
+      <div><label for="donor-name" class="mb-2 block text-sm font-semibold text-ink">Full name <span class="font-normal text-muted">(optional)</span></label><input id="donor-name" name="donor_name" autocomplete="name" class="field-input" placeholder="Your name"></div>
+      <div><label for="donor-email" class="mb-2 block text-sm font-semibold text-ink">Email for receipt <span class="text-red-600">*</span></label><input id="donor-email" name="email" type="email" autocomplete="email" required class="field-input" placeholder="you@example.com"></div>
+    </div>
+    <button type="submit" {% if not paystack_ready %}disabled{% endif %} class="btn-primary mt-6 w-full justify-center py-4 text-base disabled:cursor-not-allowed disabled:opacity-50">Continue to secure payment <span aria-hidden="true">→</span></button>
+    {% if not paystack_ready %}<p class="mt-3 text-center text-xs text-muted">Online donations are temporarily unavailable.</p>{% endif %}
+    <p class="mt-4 text-center text-[11px] text-muted">Donations are separate from member dues. Payment is confirmed by Paystack.</p>
+  </form>
+</section>
+{% endblock %}

@@ -123,6 +123,17 @@ def send_payment_receipt(payment):
     )
 
 
+def send_donation_receipt(donation):
+    context = {"donation": donation, "site_url": settings.SITE_URL}
+    return _send(
+        subject="MSSN AATU donation receipt",
+        text_template="emails/donation_receipt.txt",
+        html_template="emails/donation_receipt.html",
+        context=context,
+        to_email=donation.email,
+    )
+
+
 def send_dues_reminder(student, cycle, pay_url):
     context = {"student": student, "cycle": cycle, "pay_url": pay_url, "site_url": settings.SITE_URL}
     return _send(

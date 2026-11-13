@@ -93,3 +93,27 @@ class ReminderLog(models.Model):
 
     def __str__(self):
         return f"Reminder → {self.student.matric_no}"
+
+
+class Donation(models.Model):
+    PENDING = "pending"
+    SUCCESS = "success"
+    FAILED = "failed"
+    STATUS_CHOICES = [(PENDING, "Pending"), (SUCCESS, "Paid"), (FAILED, "Failed")]
+
+    donor_name = models.CharField(max_length=160, blank=True)
+    email = models.EmailField()
+    cause = models.CharField(max_length=120, default="General Society Support")
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reference = models.CharField(max_length=80, unique=True, default=generate_reference, editable=False)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default=PENDING)
+    gateway_reference = models.CharField(max_length=120, blank=True)
+    receipt_sent = models.BooleanField(default=False)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.email} — ₦{self.amount:,.0f} ({self.status})"

@@ -1,0 +1,9 @@
+Thank you for supporting MSSN AATU.
+
+Donation: ₦{{ donation.amount|floatformat:2 }}
+Cause: {{ donation.cause }}
+Reference: {{ donation.reference }}
+Date: {{ donation.paid_at|date:"j F Y, g:i A" }}
+
+May Allah reward your generosity.
+{{ site_url }}
